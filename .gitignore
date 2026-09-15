@@ -1,0 +1,7 @@
+node_modules/
+server/node_modules/
+server/data/*.sqlite
+server/data/*.sqlite-*
+server/.env
+*.pem
+service-account*.json
