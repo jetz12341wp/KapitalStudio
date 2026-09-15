@@ -321,6 +321,15 @@
         </select>
       </div>
       <div>
+        <label for="barbero" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">¿Con quién deseas que te atienda?</label>
+        <select id="barbero" name="barbero" class="w-full border rounded-lg px-4 py-3" style="border-color:#E4DDD0">
+          <option value="">Cualquiera disponible</option>
+          <option value="Persona 1">Persona 1</option>
+          <option value="Persona 2">Persona 2</option>
+          <option value="Persona 3">Persona 3</option>
+        </select>
+      </div>
+      <div>
         <label for="name" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Nombre completo</label>
         <input type="text" id="name" name="name" required autocomplete="name" class="w-full border rounded-lg px-4 py-3" style="border-color:#E4DDD0">
       </div>
@@ -522,6 +531,7 @@
     messageEl.textContent = '';
 
     var service = form.service.value;
+    var barbero = form.barbero.value;
     var name = form.name.value.trim();
     var phone = form.phone.value.trim();
     var date = form.date.value;
@@ -544,6 +554,7 @@
       'Nombre: ' + name,
       'Teléfono: ' + phone
     ];
+    if(barbero) lines.push('Atendido por: ' + barbero);
     if(date) lines.push('Fecha preferida: ' + formatFecha(date));
     if(time) lines.push('Hora preferida: ' + time);
     if(notes) lines.push('Notas: ' + notes);
