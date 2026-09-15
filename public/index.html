@@ -102,9 +102,12 @@
     .carousel-nav-btn{width:2.2rem;height:2.2rem;border-radius:9999px;border:1.5px solid var(--brand-accent);color:var(--brand-accent);background:#fff;font-size:1.1rem;line-height:1;cursor:pointer}
     .carousel-nav-btn:hover{background:var(--brand-accent);color:#fff}
 
-    /* ===== Logo: archivo de imagen real (public/logo.png) ===== */
-    .brand-nav{display:flex;align-items:center;text-decoration:none}
+    /* ===== Logo: archivo de imagen real (public/logo.png, fondo negro sin transparencia) ===== */
+    .brand-nav{display:flex;align-items:center;text-decoration:none;background:var(--brand-dark);border-radius:.6rem;padding:.35rem .75rem}
+    .brand-nav img{display:block;height:2.1rem;width:auto}
     .brand-logo{text-align:center;margin:0 auto}
+    .brand-logo img{display:block;margin:0 auto;width:16rem;max-width:100%;height:auto}
+    @media (min-width:768px){.brand-logo img{width:20rem}}
 
     /* ===== Craft layer (elevación, foco) ===== */
     :root{--ease: cubic-bezier(.22,.61,.36,1);--dur: .22s;
@@ -127,7 +130,7 @@
 <!-- NAV -->
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
   <nav class="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
-    <a href="#top" class="brand-nav shrink-0"><img src="logo.png" alt="Kápital Studio" class="h-10 w-auto"></a>
+    <a href="#top" class="brand-nav shrink-0"><img src="logo.png" alt="Kápital Studio"></a>
     <div class="hidden md:flex gap-6 text-sm font-semibold">
       <a href="#servicios">Servicios</a><a href="#nosotros">Nosotros</a>
       <a href="#ubicacion">Ubicación</a><a href="#faq">FAQ</a>
@@ -140,7 +143,7 @@
 <section id="top" class="relative" style="background:var(--brand-dark);color:#F4EFE7">
   <div class="max-w-6xl mx-auto px-4 pt-14 pb-20 md:pt-16 md:pb-28">
     <div class="brand-logo mb-10">
-      <img src="logo.png" alt="Kápital Studio" class="mx-auto w-64 md:w-80" style="max-width:100%;height:auto">
+      <img src="logo.png" alt="Kápital Studio">
     </div>
     <p class="kicker text-center md:text-left">Corte · Barba · Facial · Color</p>
     <h1 class="text-3xl md:text-5xl mt-3 max-w-3xl leading-tight text-center md:text-left mx-auto md:mx-0" style="color:#F8F4EC">Barbería premium en Los Olivos</h1>

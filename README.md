@@ -43,14 +43,18 @@ Para agregar, quitar o modificar un servicio, edita ambos lugares.
 
 ## Logo
 
-El nav y el hero usan la imagen real del logo con `<img src="logo.png">`. El archivo debe subirse a `public/logo.png` (mismo nombre, en la carpeta `public/`, junto a `index.html`) — no viene incluido en este commit porque no fue posible extraer el PNG compartido como archivo en el entorno donde se generó este sitio.
+El nav y el hero usan la imagen real del logo (`public/logo.png`) con `<img src="logo.png">`. El archivo tiene fondo negro sólido (sin transparencia), así que:
 
-Para subirlo: en GitHub, entra a la carpeta `public/` de este repositorio → **Add file** → **Upload files** → arrastra el PNG del logo → asegúrate de que el nombre quede como `logo.png` → **Commit changes**. En cuanto el archivo exista en esa ruta, el logo aparece automáticamente en el nav y el hero (fondo transparente recomendado, funciona bien con el `.png` que compartiste).
+- En el **hero** (fondo negro) se funde sin bordes visibles.
+- En el **nav** (fondo blanco) va dentro de una placa oscura (`.brand-nav`, en el `<style>` de `index.html`) para que no se vea como un recuadro negro suelto sobre el blanco.
+
+El tamaño se controla con CSS propio (`.brand-nav img` y `.brand-logo img`), no con clases de Tailwind, para que no dependa de que el script de Tailwind CDN cargue a tiempo.
+
+Para reemplazar el logo más adelante (otro diseño, versión con fondo transparente, etc.), solo sube el nuevo archivo a `public/logo.png` desde GitHub (**Add file → Upload files** dentro de la carpeta `public/`, manteniendo el nombre `logo.png`) y confirma el commit — no hace falta tocar el HTML.
 
 ## Pendiente antes de publicar
 
 - Dominio propio (hoy el `<link rel="canonical">` y el correo de `libro-de-reclamaciones.html` usan `TU-DOMINIO-AQUI.pe` como placeholder).
-- Subir `public/logo.png` (ver sección "Logo" arriba) — el sitio ya está listo para usarlo, solo falta el archivo.
 - RUC / razón social en el footer.
 - Redes sociales reales del negocio (hoy no hay ninguna enlazada).
 - Fotos reales del local y el equipo.
