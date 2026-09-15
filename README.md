@@ -65,11 +65,19 @@ Esto se verifica justo al hacer clic en **"Enviar por WhatsApp"**:
 1. Si falta completar algún campo obligatorio (todos menos "Notas"), aparece un recuadro de alerta listando qué falta y no se envía nada.
 2. Si se eligió una persona específica y esa persona ya tiene una cita en esa fecha y hora, aparece un aviso pidiendo elegir otra persona, hora o día.
 3. Si se eligió "Cualquiera disponible", el sitio asigna automáticamente a la primera persona libre en ese horario; si las 3 ya están ocupadas, avisa que el horario está completo.
-4. Si todo está disponible, la cita se guarda (tabla `citas` en D1) y recién ahí se abre WhatsApp con el mensaje, incluyendo con qué persona quedó la cita.
+4. Si todo está disponible, la cita se guarda (tabla `citas` en D1) y recién ahí se abre WhatsApp con el mensaje, incluyendo con qué persona quedó la cita. Después de enviar, el formulario se limpia solo para la siguiente persona.
 
 Para cambiar los nombres genéricos "Persona 1/2/3" por los nombres reales del equipo, edita las opciones del `<select id="barbero">` en `public/index.html` (dile a Claude los nombres y se actualiza solo).
 
-Para ver las citas guardadas: dashboard de Cloudflare → tu base `kapital-studio-db` → pestaña "Console" → `SELECT * FROM citas ORDER BY fecha, hora;` (esta tabla si guarda nombre y teléfono del cliente, a diferencia de `dias_bloqueados`).
+### Ver, cancelar o corregir una cita
+
+En **`/admin`** (misma clave que para los días bloqueados), sección **"Citas reservadas"**:
+
+- Elige una fecha para ver quién tiene cita ese día (persona, nombre, teléfono, servicio).
+- Botón **"Cancelar"** en cada fila para liberar ese horario (por ejemplo, si alguien reservó con la persona equivocada).
+- Más abajo, **"Cargar o corregir una cita manualmente"** deja agregar una cita a mano con los datos correctos (útil después de cancelar una mal hecha, o para bloquear un horario que se coordinó directo por WhatsApp sin pasar por el formulario).
+
+También se puede ver todo directo en la base: dashboard de Cloudflare → tu base `kapital-studio-db` → pestaña "Console" → `SELECT * FROM citas ORDER BY fecha, hora;` (esta tabla sí guarda nombre y teléfono del cliente, a diferencia de `dias_bloqueados`).
 
 ## Cambiar servicios o precios
 

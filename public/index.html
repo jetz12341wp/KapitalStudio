@@ -636,6 +636,9 @@
             var text = encodeURIComponent(lines.join('\n'));
             var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + text;
             if(waWindow){ waWindow.location = url; } else { window.open(url, '_blank', 'noopener,noreferrer'); }
+
+            form.reset();
+            clearAlert();
           });
       });
   });

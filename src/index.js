@@ -85,6 +85,32 @@ export default {
       return jsonResponse({ ok: true });
     }
 
+    if (url.pathname === '/api/admin/citas' && request.method === 'GET') {
+      if (!isAuthorized(request, env)) return jsonResponse({ error: 'No autorizado' }, 401);
+      const fecha = url.searchParams.get('fecha');
+      if (!FECHA_RE.test(fecha)) return jsonResponse({ error: 'Fecha inválida (usa AAAA-MM-DD)' }, 400);
+      const { results } = await env.DB.prepare(
+        'SELECT hora, persona, nombre, telefono, servicio FROM citas WHERE fecha = ? ORDER BY hora'
+      ).bind(fecha).all();
+      return jsonResponse(results);
+    }
+
+    if (url.pathname === '/api/admin/citas' && request.method === 'DELETE') {
+      if (!isAuthorized(request, env)) return jsonResponse({ error: 'No autorizado' }, 401);
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return jsonResponse({ error: 'JSON inválido' }, 400);
+      }
+      const { fecha, hora, persona } = body || {};
+      if (!FECHA_RE.test(fecha) || !hora || !persona) return jsonResponse({ error: 'Faltan datos' }, 400);
+      await env.DB.prepare(
+        'DELETE FROM citas WHERE fecha = ? AND hora = ? AND persona = ?'
+      ).bind(fecha, hora, persona).run();
+      return jsonResponse({ ok: true });
+    }
+
     return env.ASSETS.fetch(request);
   },
 };
