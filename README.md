@@ -4,7 +4,7 @@ Sitio web de Kápital Studio (Av. Las Palmeras #5194, Los Olivos). Es casi todo 
 
 - `public/` — todo el sitio (HTML + Tailwind CDN, sin build).
 - Los servicios y precios están escritos directamente en `public/index.html` (no vienen de ninguna base de datos).
-- Todos los botones "Reservar" (nav, hero, tarjetas de servicio, CTA final, botón flotante) llevan a la sección **Agenda tu cita**, donde está el formulario. Al enviarlo, el formulario arma un mensaje de WhatsApp con los datos que la persona escribió (servicio, nombre, teléfono, fecha preferida, hora preferida, notas) y abre `wa.me` con ese mensaje ya listo para enviar. Si el clic fue desde una tarjeta de servicio, el formulario preselecciona automáticamente ese servicio. No se guarda nada en ningún servidor — el envío final lo hace la propia app de WhatsApp de quien reserva.
+- Todos los botones "Reservar" (nav, hero, tarjetas de servicio, CTA final, botón flotante) llevan a la sección **Agenda tu cita**, donde está el formulario. Todos los campos son obligatorios excepto "Notas". Al enviarlo, el formulario verifica disponibilidad (ver "Personas y disponibilidad por horario" abajo), guarda la cita en D1 y arma un mensaje de WhatsApp con los datos (servicio, con quién, nombre, teléfono, fecha, hora, notas) que abre en `wa.me` listo para enviar. Si el clic fue desde una tarjeta de servicio, el formulario preselecciona automáticamente ese servicio.
 - WhatsApp del negocio: **+51 910 085 081**.
 
 ## Cómo desplegar
@@ -22,10 +22,12 @@ Se publica en Cloudflare Workers (assets estáticos + una función pequeña para
 
 2. **Pegar ese ID en `wrangler.toml`.** Reemplaza el valor de `database_id` (ahora mismo dice `"PENDIENTE-pega-aqui-el-id-que-te-de-cloudflare"`) por el ID real que te dio el paso anterior, y sube ese cambio a GitHub.
 
-3. **Crear la tabla en la base de datos real** (una sola vez):
+3. **Crear las tablas en la base de datos real** (una sola vez):
    ```bash
    npm run db:migrate:remote
    ```
+   Este comando aplica todos los archivos de `migrations/` que todavía no se hayan ejecutado en la base remota — si en el futuro agrego una nueva tabla, alcanza con correr este mismo comando de nuevo, no hace falta repetir los pasos 1 y 2.
+   *(Alternativa sin terminal: dentro de tu base en el dashboard → pestaña "Console" → pega y ejecuta el contenido de cada archivo `.sql` de la carpeta `migrations/`, en orden.)*
 
 Con esos 3 pasos hechos, `npm run deploy` (o el despliegue automático por GitHub) ya funciona. Los pasos 1 y 3 requieren la terminal con `wrangler` autenticado — si no tienes eso configurado en tu computadora, dímelo y vemos la alternativa por dashboard paso a paso.
 
@@ -53,6 +55,21 @@ Esos días bloqueados se guardan en la base de datos D1 y el formulario de la se
 **Seguridad de la clave:** el `ADMIN_TOKEN` en `wrangler.toml` es la única protección de `/admin` — cualquiera con esa clave puede bloquear o liberar días. Como el repositorio de GitHub podría ser visible para otras personas, no compartas el link del repositorio ni el archivo `wrangler.toml` fuera de quien deba administrar el sitio, y cambia esa clave si alguna vez sospechas que se filtró (edita el valor en `wrangler.toml` y vuelve a desplegar).
 
 Esto **no reemplaza** el flujo de reservas por WhatsApp: las citas se siguen coordinando por WhatsApp como siempre; esto solo evita que alguien elija, en el formulario, un día en que el negocio ya sabe que no va a atender.
+
+## Personas y disponibilidad por horario
+
+El formulario tiene un campo **"¿Con quién deseas que te atienda?"** con 3 opciones (`Persona 1`, `Persona 2`, `Persona 3`) más `Cualquiera disponible`. Las 3 personas pueden atender en simultáneo — una misma fecha y hora admite hasta 3 citas, una por persona — y una hora recién se considera completa cuando las 3 ya están ocupadas ahí.
+
+Esto se verifica justo al hacer clic en **"Enviar por WhatsApp"**:
+
+1. Si falta completar algún campo obligatorio (todos menos "Notas"), aparece un recuadro de alerta listando qué falta y no se envía nada.
+2. Si se eligió una persona específica y esa persona ya tiene una cita en esa fecha y hora, aparece un aviso pidiendo elegir otra persona, hora o día.
+3. Si se eligió "Cualquiera disponible", el sitio asigna automáticamente a la primera persona libre en ese horario; si las 3 ya están ocupadas, avisa que el horario está completo.
+4. Si todo está disponible, la cita se guarda (tabla `citas` en D1) y recién ahí se abre WhatsApp con el mensaje, incluyendo con qué persona quedó la cita.
+
+Para cambiar los nombres genéricos "Persona 1/2/3" por los nombres reales del equipo, edita las opciones del `<select id="barbero">` en `public/index.html` (dile a Claude los nombres y se actualiza solo).
+
+Para ver las citas guardadas: dashboard de Cloudflare → tu base `kapital-studio-db` → pestaña "Console" → `SELECT * FROM citas ORDER BY fecha, hora;` (esta tabla si guarda nombre y teléfono del cliente, a diferencia de `dias_bloqueados`).
 
 ## Cambiar servicios o precios
 
@@ -88,7 +105,7 @@ Cada `<div class="service-visual">` tiene un `<img>` con `object-fit:contain` (n
 
 ## Pendiente antes de publicar
 
-- **Crear la base de datos D1 y pegar su ID en `wrangler.toml`** — ver "Cómo desplegar" arriba. Sin esto, el sitio no despliega.
+- **Correr `npm run db:migrate:remote`** (o pegar el SQL de `migrations/0002_citas.sql` en la Console de Cloudflare) para crear la tabla `citas` en la base real — es nueva desde que se agregó "Personas y disponibilidad por horario". Sin este paso, el formulario no podrá guardar ni consultar citas.
 - Dominio propio (hoy el `<link rel="canonical">` y el correo de `libro-de-reclamaciones.html` usan `TU-DOMINIO-AQUI.pe` como placeholder).
 - RUC / razón social en el footer.
 - Fotos reales del local y el equipo (las de servicios ya están, ver sección "Fotos de servicios" arriba).
