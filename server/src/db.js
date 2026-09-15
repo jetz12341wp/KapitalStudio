@@ -30,6 +30,8 @@ db.exec(`
     name TEXT NOT NULL,
     description TEXT,
     duration INTEGER NOT NULL,
+    price REAL,
+    price_is_from INTEGER NOT NULL DEFAULT 0,
     active INTEGER NOT NULL DEFAULT 1,
     sort_order INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -43,10 +45,19 @@ const { DEFAULT_SERVICES } = require('./config');
 const servicesCount = db.prepare('SELECT COUNT(*) AS n FROM services').get().n;
 if (servicesCount === 0) {
   const insertDefault = db.prepare(
-    `INSERT INTO services (id, name, description, duration, active, sort_order) VALUES (@id, @name, @description, @duration, 1, @sort_order)`
+    `INSERT INTO services (id, name, description, duration, price, price_is_from, active, sort_order)
+     VALUES (@id, @name, @description, @duration, @price, @price_is_from, 1, @sort_order)`
   );
   const seedMany = db.transaction((rows) => {
-    rows.forEach((row, index) => insertDefault.run({ ...row, description: row.description || null, sort_order: index }));
+    rows.forEach((row, index) =>
+      insertDefault.run({
+        ...row,
+        description: row.description || null,
+        price: row.price !== undefined ? row.price : null,
+        price_is_from: row.priceIsFrom ? 1 : 0,
+        sort_order: index,
+      })
+    );
   });
   seedMany(DEFAULT_SERVICES);
 }
@@ -96,23 +107,26 @@ function getActiveService(id) {
   return db.prepare(`SELECT * FROM services WHERE id = ? AND active = 1`).get(id);
 }
 
-function createService({ id, name, description, duration }) {
+function createService({ id, name, description, duration, price, priceIsFrom }) {
   const maxOrder = db.prepare(`SELECT COALESCE(MAX(sort_order), -1) AS m FROM services`).get().m;
   db.prepare(
-    `INSERT INTO services (id, name, description, duration, active, sort_order) VALUES (?, ?, ?, ?, 1, ?)`
-  ).run(id, name, description || null, duration, maxOrder + 1);
+    `INSERT INTO services (id, name, description, duration, price, price_is_from, active, sort_order)
+     VALUES (?, ?, ?, ?, ?, ?, 1, ?)`
+  ).run(id, name, description || null, duration, price === undefined ? null : price, priceIsFrom ? 1 : 0, maxOrder + 1);
   return getService(id);
 }
 
-function updateService(id, { name, description, duration, active }) {
+function updateService(id, { name, description, duration, price, priceIsFrom, active }) {
   const current = getService(id);
   if (!current) return null;
   db.prepare(
-    `UPDATE services SET name = ?, description = ?, duration = ?, active = ? WHERE id = ?`
+    `UPDATE services SET name = ?, description = ?, duration = ?, price = ?, price_is_from = ?, active = ? WHERE id = ?`
   ).run(
     name !== undefined ? name : current.name,
     description !== undefined ? description : current.description,
     duration !== undefined ? duration : current.duration,
+    price !== undefined ? price : current.price,
+    priceIsFrom !== undefined ? (priceIsFrom ? 1 : 0) : current.price_is_from,
     active !== undefined ? (active ? 1 : 0) : current.active,
     id
   );

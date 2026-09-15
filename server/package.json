@@ -2,7 +2,7 @@
   "name": "barberia-skills-server",
   "version": "1.0.0",
   "private": true,
-  "description": "Backend de reservas de Barbería Skills (Express + SQLite + Google Calendar)",
+  "description": "Backend de reservas de Kápital Studio (Express + SQLite + Google Calendar)",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",

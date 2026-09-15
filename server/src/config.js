@@ -2,16 +2,22 @@ require('dotenv').config();
 
 // Servicios con los que arranca la base de datos la primera vez (solo semilla
 // inicial). Una vez desplegado, el negocio los edita, borra o agrega los suyos
-// desde /admin.html sin tocar este archivo.
+// desde /admin.html sin tocar este archivo. La duración de cada uno es una
+// estimación razonable (el negocio no la especificó); ajústala desde el panel
+// admin si no coincide con la real.
 const DEFAULT_SERVICES = [
-  { id: 'skills-premium', name: 'Skills Premium', description: 'Cortes de autor y experiencia completa de barbería.', duration: 60 },
-  { id: 'hair-styling', name: 'Hair Styling', description: 'Cortes clásicos, modernos y diseños a medida.', duration: 45 },
-  { id: 'skin-care', name: 'Skin Care', description: 'Cuidado facial y de piel.', duration: 30 },
+  { id: 'corte-clasico', name: 'Corte clásico', description: 'Corte tradicional a máquina y tijera.', duration: 30, price: 25 },
+  { id: 'corte-degradado', name: 'Corte degradado', description: 'Fade / degradado a máquina.', duration: 30, price: 30 },
+  { id: 'corte-a-tijera', name: 'Corte a tijera', description: 'Corte trabajado íntegramente a tijera.', duration: 40, price: 30 },
+  { id: 'perfilado-de-barba', name: 'Perfilado de barba', description: 'Diseño y perfilado de barba.', duration: 15, price: 15 },
+  { id: 'limpieza-facial', name: 'Limpieza facial', description: 'Limpieza facial profunda.', duration: 45, price: 50 },
+  { id: 'ondulacion', name: 'Ondulación', description: 'Ondulación permanente.', duration: 90, price: 100 },
+  { id: 'tinte', name: 'Tinte', description: 'Coloración de cabello.', duration: 60, price: 150, priceIsFrom: true },
 ];
 
-// 0 = domingo ... 6 = sábado
+// Todos los días, mismo horario.
 const BUSINESS_HOURS = {
-  0: { open: '10:00', close: '17:00' },
+  0: { open: '10:00', close: '21:00' },
   1: { open: '10:00', close: '21:00' },
   2: { open: '10:00', close: '21:00' },
   3: { open: '10:00', close: '21:00' },

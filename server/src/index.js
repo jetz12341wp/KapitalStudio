@@ -22,5 +22,5 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
 });
 
 app.listen(PORT, () => {
-  console.log(`Barbería Skills backend escuchando en http://localhost:${PORT}`);
+  console.log(`Kápital Studio backend escuchando en http://localhost:${PORT}`);
 });

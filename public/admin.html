@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Panel de administración | Barbería Skills</title>
+  <title>Panel de administración | Kápital Studio</title>
   <meta name="robots" content="noindex, nofollow">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -25,7 +25,7 @@
 </head>
 <body class="antialiased">
   <div class="max-w-4xl mx-auto px-4 py-10">
-    <p class="text-xs font-bold uppercase tracking-widest" style="color:var(--brand-accent)">Barbería Skills</p>
+    <p class="text-xs font-bold uppercase tracking-widest" style="color:var(--brand-accent)">Kápital Studio</p>
     <h1 class="text-2xl font-extrabold mt-1">Panel de administración</h1>
     <p class="text-sm mt-2" style="color:var(--brand-gray)">Gestiona los servicios que aparecen en el formulario de reserva de tu web, y revisa tus próximas citas. Esta página no está enlazada desde el sitio público ni indexada; guárdala en tus marcadores.</p>
 
@@ -48,7 +48,7 @@
 
       <div class="overflow-x-auto mt-4">
         <table>
-          <thead><tr><th>Nombre</th><th>Descripción</th><th>Duración</th><th>Estado</th><th></th></tr></thead>
+          <thead><tr><th>Nombre</th><th>Descripción</th><th>Duración</th><th>Precio</th><th>Estado</th><th></th></tr></thead>
           <tbody id="services-tbody"></tbody>
         </table>
       </div>
@@ -63,10 +63,20 @@
           <label for="new-description">Descripción (opcional)</label>
           <input id="new-description" name="description" type="text" class="field" placeholder="Ej. Corte con máquina y tijera, incluye lavado">
         </div>
-        <div class="max-w-xs">
-          <label for="new-duration">Duración (minutos)</label>
-          <input id="new-duration" name="duration" type="number" min="5" max="480" step="5" class="field" required placeholder="30">
+        <div class="grid grid-cols-2 gap-4 max-w-md">
+          <div>
+            <label for="new-duration">Duración (minutos)</label>
+            <input id="new-duration" name="duration" type="number" min="5" max="480" step="5" class="field" required placeholder="30">
+          </div>
+          <div>
+            <label for="new-price">Precio en S/ (opcional)</label>
+            <input id="new-price" name="price" type="number" min="0" step="0.5" class="field" placeholder="25">
+          </div>
         </div>
+        <label class="flex items-center gap-2 font-normal" style="text-transform:none;letter-spacing:normal">
+          <input id="new-price-from" type="checkbox" style="width:auto">
+          Mostrar como "Desde S/ ..." (precio variable, ej. tintes)
+        </label>
         <button type="submit" class="btn-primary w-max">Agregar servicio</button>
         <p id="form-message" class="text-sm" role="status" aria-live="polite"></p>
       </form>
@@ -83,7 +93,7 @@
 
 <script>
 (function(){
-  var STORAGE_KEY = 'barberia-skills-admin-token';
+  var STORAGE_KEY = 'kapital-studio-admin-token';
   var token = null;
 
   var loginBox = document.getElementById('login-box');
@@ -142,6 +152,12 @@
     tokenInput.value = '';
   });
 
+  function formatPrice(s){
+    if(s.price === null || s.price === undefined) return '—';
+    var value = 'S/ ' + Number(s.price).toFixed(Number(s.price) % 1 === 0 ? 0 : 2);
+    return s.priceIsFrom ? 'Desde ' + value : value;
+  }
+
   function renderServices(services){
     servicesTbody.innerHTML = services.map(function(s){
       var badge = s.active
@@ -152,20 +168,21 @@
         '<td class="font-semibold">' + escapeHtml(s.name) + '</td>' +
         '<td style="color:var(--brand-gray)">' + escapeHtml(s.description || '—') + '</td>' +
         '<td>' + s.duration + ' min</td>' +
+        '<td>' + escapeHtml(formatPrice(s)) + '</td>' +
         '<td>' + badge + '</td>' +
         '<td class="whitespace-nowrap">' +
           '<button class="btn-outline text-xs mr-2" data-action="toggle" data-active="' + (s.active ? '1' : '0') + '">' + toggleLabel + '</button>' +
           '<button class="btn-outline text-xs" data-action="delete">Eliminar</button>' +
         '</td>' +
       '</tr>';
-    }).join('') || '<tr><td colspan="5" style="color:var(--brand-gray)">Sin servicios todavía.</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="color:var(--brand-gray)">Sin servicios todavía.</td></tr>';
   }
 
   function loadServices(){
     authFetch('/api/admin/services')
       .then(function(r){ return r.json(); })
       .then(renderServices)
-      .catch(function(){ servicesTbody.innerHTML = '<tr><td colspan="5" style="color:#B3261E">No se pudo cargar la lista.</td></tr>'; });
+      .catch(function(){ servicesTbody.innerHTML = '<tr><td colspan="6" style="color:#B3261E">No se pudo cargar la lista.</td></tr>'; });
   }
 
   servicesTbody.addEventListener('click', function(e){
@@ -192,10 +209,13 @@
   serviceForm.addEventListener('submit', function(e){
     e.preventDefault();
     formMessage.textContent = '';
+    var priceValue = document.getElementById('new-price').value;
     var payload = {
       name: document.getElementById('new-name').value.trim(),
       description: document.getElementById('new-description').value.trim(),
-      duration: Number(document.getElementById('new-duration').value)
+      duration: Number(document.getElementById('new-duration').value),
+      price: priceValue === '' ? null : Number(priceValue),
+      priceIsFrom: document.getElementById('new-price-from').checked
     };
     authFetch('/api/admin/services', {
       method: 'POST',
