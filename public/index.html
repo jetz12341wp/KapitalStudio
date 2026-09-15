@@ -53,14 +53,14 @@
   <style>
     :root{
       --brand-primary:#1A1712; --brand-soft:#F4EFE7; --brand-dark:#0F0D0A;
-      --brand-accent:#B8933F; --brand-gray:#6B655B;
-      --star-red:#C8102E; --star-blue:#2B4C8C;
+      --brand-accent:#D41E35; --brand-accent-2:#2B4C8C; --brand-gray:#6B655B;
+      --star-red:var(--brand-accent); --star-blue:var(--brand-accent-2);
     }
     html{scroll-behavior:smooth} body{color:var(--brand-dark)}
     /* No depende del CDN de Tailwind: garantiza el ocultamiento aunque el CDN falle en cargar. */
     .hidden{display:none!important}
     @media (min-width:768px){ .md\:flex.hidden{display:flex!important} }
-    .btn-primary{background:var(--brand-accent);color:#0F0D0A;font-weight:700;border-radius:8px;padding:.9rem 1.9rem;display:inline-block;transition:.18s;border:none;cursor:pointer;font-size:1rem}
+    .btn-primary{background:var(--brand-accent);color:#fff;font-weight:700;border-radius:8px;padding:.9rem 1.9rem;display:inline-block;transition:.18s;border:none;cursor:pointer;font-size:1rem}
     .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.06)}
     .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
     .btn-outline{border:1.5px solid currentColor;font-weight:700;border-radius:8px;padding:.9rem 1.9rem;display:inline-block}
@@ -72,7 +72,7 @@
     details.faq summary::after{content:"+";color:var(--brand-accent);font-size:1.4rem;line-height:1}
     details.faq[open] summary::after{content:"–"}
     .reserve-float{position:fixed;right:20px;bottom:20px;z-index:50;display:flex;align-items:center;gap:.5rem;
-      padding:.85rem 1.3rem;border-radius:9999px;background:var(--brand-accent);color:#0F0D0A;font-weight:700;font-size:.85rem;
+      padding:.85rem 1.3rem;border-radius:9999px;background:var(--brand-accent);color:#fff;font-weight:700;font-size:.85rem;
       box-shadow:0 6px 18px rgba(0,0,0,.28);transition:transform .15s}
     .reserve-float:hover{transform:scale(1.05)}
     .field{border:1px solid #E4DDD0;border-radius:8px;padding:.8rem 1rem;width:100%;font-family:inherit;font-size:1rem;background:#fff}
@@ -81,7 +81,7 @@
 
     /* ===== Tarjetas de servicio destacadas ===== */
     .service-card{border-radius:16px;overflow:hidden;border:1px solid #E4DDD0;background:#fff;display:flex;flex-direction:column}
-    .service-visual{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-dark),var(--brand-accent))}
+    .service-visual{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-dark) 0%,var(--brand-accent) 55%,var(--brand-accent-2) 100%)}
     .service-visual svg{width:34%;height:34%;color:#fff}
     .service-body{padding:1.25rem 1.5rem 1.5rem;flex:1;display:flex;flex-direction:column}
     .service-body h3{font-size:1.15rem}
@@ -96,13 +96,13 @@
     .carousel-track::-webkit-scrollbar{height:6px}
     .carousel-track::-webkit-scrollbar-thumb{background:#E4DDD0;border-radius:9999px}
     .carousel-card{flex:0 0 200px;scroll-snap-align:start;border-radius:14px;overflow:hidden;border:1px solid #E4DDD0;background:#fff}
-    .carousel-visual{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-dark),var(--brand-accent))}
+    .carousel-visual{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-dark) 0%,var(--brand-accent) 55%,var(--brand-accent-2) 100%)}
     .carousel-visual svg{width:32%;height:32%;color:#fff}
     .carousel-body{padding:.9rem 1rem 1.1rem}
     .carousel-body h4{font-family:'Playfair Display',serif;font-weight:700;font-size:.98rem}
     .carousel-price{margin-top:.5rem;font-family:'Playfair Display',serif;font-weight:700;color:var(--brand-accent);font-size:1.1rem}
-    .carousel-nav-btn{width:2.2rem;height:2.2rem;border-radius:9999px;border:1.5px solid var(--brand-dark);background:#fff;font-size:1.1rem;line-height:1;cursor:pointer}
-    .carousel-nav-btn:hover{background:var(--brand-dark);color:#fff}
+    .carousel-nav-btn{width:2.2rem;height:2.2rem;border-radius:9999px;border:1.5px solid var(--brand-accent);color:var(--brand-accent);background:#fff;font-size:1.1rem;line-height:1;cursor:pointer}
+    .carousel-nav-btn:hover{background:var(--brand-accent);color:#fff}
 
     /* ===== Logo: recreación tipográfica de Kápital Studio (arco + wordmark + estrellas) ===== */
     .brand-nav{display:flex;align-items:baseline;gap:.4rem;text-decoration:none}
