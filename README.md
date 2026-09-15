@@ -4,7 +4,7 @@ Sitio web de Kápital Studio (Av. Las Palmeras #5194, Los Olivos). Es un sitio *
 
 - `public/` — todo el sitio (HTML + Tailwind CDN, sin build).
 - Los servicios y precios están escritos directamente en `public/index.html` (no vienen de ninguna base de datos).
-- Todos los botones "Reservar" (nav, hero, tarjetas de servicio, carrusel, CTA final, botón flotante) llevan a la sección **Agenda tu cita**, donde está el formulario. Al enviarlo, el formulario arma un mensaje de WhatsApp con los datos que la persona escribió (servicio, nombre, teléfono, fecha preferida, hora preferida, notas) y abre `wa.me` con ese mensaje ya listo para enviar. Si el clic fue desde una tarjeta de servicio, el formulario preselecciona automáticamente ese servicio. No se guarda nada en ningún servidor — el envío final lo hace la propia app de WhatsApp de quien reserva.
+- Todos los botones "Reservar" (nav, hero, tarjetas de servicio, CTA final, botón flotante) llevan a la sección **Agenda tu cita**, donde está el formulario. Al enviarlo, el formulario arma un mensaje de WhatsApp con los datos que la persona escribió (servicio, nombre, teléfono, fecha preferida, hora preferida, notas) y abre `wa.me` con ese mensaje ya listo para enviar. Si el clic fue desde una tarjeta de servicio, el formulario preselecciona automáticamente ese servicio. No se guarda nada en ningún servidor — el envío final lo hace la propia app de WhatsApp de quien reserva.
 - WhatsApp del negocio: **+51 910 085 081**.
 
 ## Cómo desplegar
@@ -32,7 +32,7 @@ El número está repetido en varios lugares de `public/index.html` (nav, hero, t
 
 No hay panel de administración ni base de datos: los 7 servicios están escritos directamente en `public/index.html`, en dos lugares que deben mantenerse coherentes:
 
-1. Las tarjetas de la sección **Servicios** (3 destacadas + 4 en el carrusel) — el texto visible y el enlace de WhatsApp de cada una (que ya trae el nombre y precio del servicio en el mensaje).
+1. Las tarjetas de la sección **Servicios y precios** (una sola cuadrícula con las 7, sin distinción entre destacadas y "más servicios") — el texto visible y el valor `data-service` de cada una (que precarga el servicio correcto en el formulario).
 2. El `<select>` del formulario en la sección **Agenda tu cita** (`id="service"`), con el mismo texto.
 
 Para agregar, quitar o modificar un servicio, edita ambos lugares.
@@ -54,12 +54,11 @@ Para reemplazar el logo más adelante (otro diseño, versión con fondo transpar
 
 ## Fotos de servicios
 
-Las tarjetas de la sección **Servicios** (3 destacadas + 4 en el carrusel) usan fotos reales en `public/img/` en vez del ícono genérico anterior:
+Las 7 tarjetas de la sección **Servicios y precios** usan fotos reales en `public/img/`:
 
-- `corte-clasico.jpg`, `corte-degradado.jpg`, `corte-tijera.jpg` — tarjetas destacadas.
-- `perfilado-barba.jpg`, `limpieza-facial.jpg`, `ondulacion.jpg`, `tinte.jpg` — carrusel.
+`corteclasico.jpeg`, `cortedegradado.jpeg`, `corteatijera.jpeg`, `perfiladodebarba.jpeg`, `limpiezafacial.jpeg`, `ondulacion.jpeg`, `tinte.jpeg`.
 
-Cada `<div class="service-visual">` / `<div class="carousel-visual">` tiene un `<img>` con `object-fit:cover`, así que la foto siempre llena el recuadro (4:3 en destacadas, 1:1 en el carrusel) sin deformarse, recortando los bordes si hace falta. Para cambiar una foto, sube el nuevo archivo a `public/img/` con el mismo nombre desde GitHub (**Add file → Upload files**) y confirma el commit — no hace falta tocar el HTML.
+Cada `<div class="service-visual">` tiene un `<img>` con `object-fit:contain` (no `cover`): la foto se muestra **completa, sin recortar nada**, dentro de un recuadro uniforme (`aspect-ratio:4/5`) — si la foto no encaja exacto en esa proporción, se ve un pequeño margen del degradado de marca a los lados o arriba/abajo, nunca se corta la imagen. Para cambiar una foto, sube el nuevo archivo a `public/img/` con el mismo nombre desde GitHub (**Add file → Upload files**) y confirma el commit — no hace falta tocar el HTML.
 
 ## Pendiente antes de publicar
 

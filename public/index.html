@@ -80,27 +80,14 @@
 
     /* ===== Tarjetas de servicio destacadas ===== */
     .service-card{border-radius:16px;overflow:hidden;border:1px solid #E4DDD0;background:#fff;display:flex;flex-direction:column}
-    .service-visual{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-dark) 0%,var(--brand-accent) 55%,var(--brand-accent-2) 100%);overflow:hidden}
-    .service-visual img{width:100%;height:100%;object-fit:cover;display:block}
+    .service-visual{aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-dark) 0%,var(--brand-accent) 55%,var(--brand-accent-2) 100%);overflow:hidden}
+    .service-visual img{width:100%;height:100%;object-fit:contain;display:block}
     .service-body{padding:1.25rem 1.5rem 1.5rem;flex:1;display:flex;flex-direction:column}
     .service-body h3{font-size:1.15rem}
     .service-desc{margin-top:.35rem;font-size:.9rem;color:var(--brand-gray);flex:1}
     .service-price-row{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;margin-top:1rem;padding-top:1rem;border-top:1px dashed #E4DDD0}
     .service-price-note{font-size:.66rem;text-transform:uppercase;letter-spacing:.12em;color:var(--brand-gray);display:block;margin-bottom:.15rem}
     .service-price{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:var(--brand-accent);line-height:1}
-
-    /* ===== Carrusel de servicios adicionales ===== */
-    .carousel-track{display:flex;gap:1.1rem;overflow-x:auto;scroll-snap-type:x mandatory;padding:.2rem .2rem 1rem;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-    .carousel-track::-webkit-scrollbar{height:6px}
-    .carousel-track::-webkit-scrollbar-thumb{background:#E4DDD0;border-radius:9999px}
-    .carousel-card{flex:0 0 200px;scroll-snap-align:start;border-radius:14px;overflow:hidden;border:1px solid #E4DDD0;background:#fff}
-    .carousel-visual{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-dark) 0%,var(--brand-accent) 55%,var(--brand-accent-2) 100%);overflow:hidden}
-    .carousel-visual img{width:100%;height:100%;object-fit:cover;display:block}
-    .carousel-body{padding:.9rem 1rem 1.1rem}
-    .carousel-body h4{font-family:'Playfair Display',serif;font-weight:700;font-size:.98rem}
-    .carousel-price{margin-top:.5rem;font-family:'Playfair Display',serif;font-weight:700;color:var(--brand-accent);font-size:1.1rem}
-    .carousel-nav-btn{width:2.2rem;height:2.2rem;border-radius:9999px;border:1.5px solid var(--brand-accent);color:var(--brand-accent);background:#fff;font-size:1.1rem;line-height:1;cursor:pointer}
-    .carousel-nav-btn:hover{background:var(--brand-accent);color:#fff}
 
     /* ===== Logo: archivo de imagen real (public/logo.png, fondo negro sin transparencia) ===== */
     .brand-nav{display:flex;align-items:center;text-decoration:none;background:var(--brand-dark);border-radius:.6rem;padding:.35rem .75rem}
@@ -176,11 +163,10 @@
     <h2 class="text-2xl md:text-4xl mt-2">Servicios y precios</h2>
     <p class="mt-4 max-w-3xl" style="color:var(--brand-gray)">Elige el servicio que buscas y complétalo en el formulario — te llevamos directo a agendar por WhatsApp.</p>
 
-    <!-- Destacados -->
-    <div class="grid md:grid-cols-3 gap-6 mt-10">
+    <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mt-10">
       <article class="service-card">
         <div class="service-visual">
-          <img src="img/corte-clasico.jpg" alt="Corte clásico en Kápital Studio" loading="lazy">
+          <img src="img/corteclasico.jpeg" alt="Corte clásico en Kápital Studio" loading="lazy">
         </div>
         <div class="service-body">
           <h3 class="font-extrabold">Corte clásico</h3>
@@ -193,7 +179,7 @@
       </article>
       <article class="service-card">
         <div class="service-visual">
-          <img src="img/corte-degradado.jpg" alt="Corte degradado en Kápital Studio" loading="lazy">
+          <img src="img/cortedegradado.jpeg" alt="Corte degradado en Kápital Studio" loading="lazy">
         </div>
         <div class="service-body">
           <h3 class="font-extrabold">Corte degradado</h3>
@@ -206,7 +192,7 @@
       </article>
       <article class="service-card">
         <div class="service-visual">
-          <img src="img/corte-tijera.jpg" alt="Corte a tijera en Kápital Studio" loading="lazy">
+          <img src="img/corteatijera.jpeg" alt="Corte a tijera en Kápital Studio" loading="lazy">
         </div>
         <div class="service-body">
           <h3 class="font-extrabold">Corte a tijera</h3>
@@ -217,63 +203,58 @@
           </div>
         </div>
       </article>
-    </div>
-
-    <!-- Carrusel: el resto, ordenado de menor a mayor precio -->
-    <div class="mt-12">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="font-extrabold text-lg">Más servicios</h3>
-        <div class="flex gap-2">
-          <button type="button" id="carousel-prev" class="carousel-nav-btn" aria-label="Servicios anteriores">‹</button>
-          <button type="button" id="carousel-next" class="carousel-nav-btn" aria-label="Más servicios">›</button>
+      <article class="service-card">
+        <div class="service-visual">
+          <img src="img/perfiladodebarba.jpeg" alt="Perfilado de barba en Kápital Studio" loading="lazy">
         </div>
-      </div>
-      <div id="servicios-carousel" class="carousel-track">
-        <article class="carousel-card">
-          <div class="carousel-visual">
-            <img src="img/perfilado-barba.jpg" alt="Perfilado de barba en Kápital Studio" loading="lazy">
+        <div class="service-body">
+          <h3 class="font-extrabold">Perfilado de barba</h3>
+          <p class="service-desc">Perfilado y definición de barba. · ⏱ 15 min</p>
+          <div class="service-price-row">
+            <a href="#reserva" data-service="Perfilado de barba (S/ 15)" class="font-bold text-sm" style="color:var(--brand-accent)">RESERVAR →</a>
+            <div class="text-right"><span class="service-price-note">Precio</span><span class="service-price">S/ 15</span></div>
           </div>
-          <div class="carousel-body">
-            <h4>Perfilado de barba</h4>
-            <p class="carousel-price">S/ 15</p>
-            <p class="text-xs mt-1" style="color:var(--brand-gray)">⏱ 15 min</p>
-            <a href="#reserva" data-service="Perfilado de barba (S/ 15)" class="inline-block mt-2 font-bold text-xs" style="color:var(--brand-accent)">RESERVAR →</a>
+        </div>
+      </article>
+      <article class="service-card">
+        <div class="service-visual">
+          <img src="img/limpiezafacial.jpeg" alt="Limpieza facial en Kápital Studio" loading="lazy">
+        </div>
+        <div class="service-body">
+          <h3 class="font-extrabold">Limpieza facial</h3>
+          <p class="service-desc">Limpieza facial profunda. · ⏱ 45 min</p>
+          <div class="service-price-row">
+            <a href="#reserva" data-service="Limpieza facial (S/ 50)" class="font-bold text-sm" style="color:var(--brand-accent)">RESERVAR →</a>
+            <div class="text-right"><span class="service-price-note">Precio</span><span class="service-price">S/ 50</span></div>
           </div>
-        </article>
-        <article class="carousel-card">
-          <div class="carousel-visual">
-            <img src="img/limpieza-facial.jpg" alt="Limpieza facial en Kápital Studio" loading="lazy">
+        </div>
+      </article>
+      <article class="service-card">
+        <div class="service-visual">
+          <img src="img/ondulacion.jpeg" alt="Ondulación en Kápital Studio" loading="lazy">
+        </div>
+        <div class="service-body">
+          <h3 class="font-extrabold">Ondulación</h3>
+          <p class="service-desc">Ondulación permanente de cabello. · ⏱ 90 min</p>
+          <div class="service-price-row">
+            <a href="#reserva" data-service="Ondulación (S/ 100)" class="font-bold text-sm" style="color:var(--brand-accent)">RESERVAR →</a>
+            <div class="text-right"><span class="service-price-note">Precio</span><span class="service-price">S/ 100</span></div>
           </div>
-          <div class="carousel-body">
-            <h4>Limpieza facial</h4>
-            <p class="carousel-price">S/ 50</p>
-            <p class="text-xs mt-1" style="color:var(--brand-gray)">⏱ 45 min</p>
-            <a href="#reserva" data-service="Limpieza facial (S/ 50)" class="inline-block mt-2 font-bold text-xs" style="color:var(--brand-accent)">RESERVAR →</a>
+        </div>
+      </article>
+      <article class="service-card">
+        <div class="service-visual">
+          <img src="img/tinte.jpeg" alt="Tinte en Kápital Studio" loading="lazy">
+        </div>
+        <div class="service-body">
+          <h3 class="font-extrabold">Tinte</h3>
+          <p class="service-desc">Tinte y coloración de cabello. · ⏱ 60 min</p>
+          <div class="service-price-row">
+            <a href="#reserva" data-service="Tinte (desde S/ 150)" class="font-bold text-sm" style="color:var(--brand-accent)">RESERVAR →</a>
+            <div class="text-right"><span class="service-price-note">Precio</span><span class="service-price">Desde S/ 150</span></div>
           </div>
-        </article>
-        <article class="carousel-card">
-          <div class="carousel-visual">
-            <img src="img/ondulacion.jpg" alt="Ondulación en Kápital Studio" loading="lazy">
-          </div>
-          <div class="carousel-body">
-            <h4>Ondulación</h4>
-            <p class="carousel-price">S/ 100</p>
-            <p class="text-xs mt-1" style="color:var(--brand-gray)">⏱ 90 min</p>
-            <a href="#reserva" data-service="Ondulación (S/ 100)" class="inline-block mt-2 font-bold text-xs" style="color:var(--brand-accent)">RESERVAR →</a>
-          </div>
-        </article>
-        <article class="carousel-card">
-          <div class="carousel-visual">
-            <img src="img/tinte.jpg" alt="Tinte en Kápital Studio" loading="lazy">
-          </div>
-          <div class="carousel-body">
-            <h4>Tinte</h4>
-            <p class="carousel-price">Desde S/ 150</p>
-            <p class="text-xs mt-1" style="color:var(--brand-gray)">⏱ 60 min</p>
-            <a href="#reserva" data-service="Tinte (desde S/ 150)" class="inline-block mt-2 font-bold text-xs" style="color:var(--brand-accent)">RESERVAR →</a>
-          </div>
-        </article>
-      </div>
+        </div>
+      </article>
     </div>
   </div>
 </section>
@@ -447,20 +428,6 @@
 </a>
 
 <script>
-(function(){
-  var track = document.getElementById('servicios-carousel');
-  var prevBtn = document.getElementById('carousel-prev');
-  var nextBtn = document.getElementById('carousel-next');
-  if(!track || !prevBtn || !nextBtn) return;
-  function scrollCarousel(dir){
-    var card = track.querySelector('.carousel-card');
-    var step = card ? card.getBoundingClientRect().width + 18 : 220;
-    track.scrollBy({ left: dir * step * 2, behavior: 'smooth' });
-  }
-  prevBtn.addEventListener('click', function(){ scrollCarousel(-1); });
-  nextBtn.addEventListener('click', function(){ scrollCarousel(1); });
-})();
-
 (function(){
   var serviceSelect = document.getElementById('service');
   if(!serviceSelect) return;
