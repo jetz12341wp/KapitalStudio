@@ -43,12 +43,14 @@ Para agregar, quitar o modificar un servicio, edita ambos lugares.
 
 ## Logo
 
-El header y el hero recrean el logo de Kápital Studio (arco, wordmark "KÁPITAL", "STUDIO" con estrellas) con CSS y la fuente Cinzel, no con el archivo de imagen original: no fue posible extraer el PNG compartido como referencia en el entorno donde se generó este sitio. Si tienes el archivo original (PNG/SVG), puedes reemplazar ese bloque por una etiqueta `<img>` apuntando a `public/logo.png`.
+El nav y el hero usan la imagen real del logo con `<img src="logo.png">`. El archivo debe subirse a `public/logo.png` (mismo nombre, en la carpeta `public/`, junto a `index.html`) — no viene incluido en este commit porque no fue posible extraer el PNG compartido como archivo en el entorno donde se generó este sitio.
+
+Para subirlo: en GitHub, entra a la carpeta `public/` de este repositorio → **Add file** → **Upload files** → arrastra el PNG del logo → asegúrate de que el nombre quede como `logo.png` → **Commit changes**. En cuanto el archivo exista en esa ruta, el logo aparece automáticamente en el nav y el hero (fondo transparente recomendado, funciona bien con el `.png` que compartiste).
 
 ## Pendiente antes de publicar
 
 - Dominio propio (hoy el `<link rel="canonical">` y el correo de `libro-de-reclamaciones.html` usan `TU-DOMINIO-AQUI.pe` como placeholder).
-- Logo real como archivo de imagen (ver sección "Logo" arriba), si no quieres quedarte con la recreación tipográfica.
+- Subir `public/logo.png` (ver sección "Logo" arriba) — el sitio ya está listo para usarlo, solo falta el archivo.
 - RUC / razón social en el footer.
 - Redes sociales reales del negocio (hoy no hay ninguna enlazada).
 - Fotos reales del local y el equipo.

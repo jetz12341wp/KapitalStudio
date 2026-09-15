@@ -55,7 +55,6 @@
     :root{
       --brand-primary:#1A1712; --brand-soft:#F4EFE7; --brand-dark:#0F0D0A;
       --brand-accent:#D41E35; --brand-accent-2:#2B4C8C; --brand-gray:#6B655B;
-      --star-red:var(--brand-accent); --star-blue:var(--brand-accent-2);
       --whatsapp:#25D366;
     }
     html{scroll-behavior:smooth} body{color:var(--brand-dark)}
@@ -103,22 +102,9 @@
     .carousel-nav-btn{width:2.2rem;height:2.2rem;border-radius:9999px;border:1.5px solid var(--brand-accent);color:var(--brand-accent);background:#fff;font-size:1.1rem;line-height:1;cursor:pointer}
     .carousel-nav-btn:hover{background:var(--brand-accent);color:#fff}
 
-    /* ===== Logo: recreación tipográfica de Kápital Studio (arco + wordmark + estrellas) ===== */
-    .brand-nav{display:flex;align-items:baseline;gap:.45rem;text-decoration:none}
-    .brand-nav .word{font-family:'Cinzel',serif;font-weight:800;font-size:1.25rem;letter-spacing:.06em;color:var(--brand-dark)}
-    .brand-nav .sub{font-family:'Playfair Display',serif;font-size:.6rem;letter-spacing:.3em;color:var(--brand-accent);font-weight:700}
+    /* ===== Logo: archivo de imagen real (public/logo.png) ===== */
+    .brand-nav{display:flex;align-items:center;text-decoration:none}
     .brand-logo{text-align:center;margin:0 auto}
-    .brand-logo .arc{display:block;margin:0 auto;color:var(--brand-accent-2)}
-    .brand-logo .word{font-family:'Cinzel',serif;font-weight:800;color:#fff;letter-spacing:.08em;line-height:1;margin:.35rem 0 0;
-      font-size:clamp(2.2rem,8vw,4rem);text-shadow:0 2px 0 var(--brand-accent),0 4px 10px rgba(0,0,0,.45);}
-    .brand-logo .studio-row{display:flex;align-items:center;justify-content:center;gap:.7rem;margin-top:.6rem;flex-wrap:wrap}
-    .brand-logo .sub{font-family:'Playfair Display',serif;letter-spacing:.45em;font-size:.85rem;font-weight:600;color:#fff}
-    .star-row{display:flex;gap:.18rem;font-size:.7rem;letter-spacing:0}
-    .star-row span:nth-child(5n+1){color:var(--star-red)}
-    .star-row span:nth-child(5n+2){color:#fff}
-    .star-row span:nth-child(5n+3){color:var(--star-blue)}
-    .star-row span:nth-child(5n+4){color:#fff}
-    .star-row span:nth-child(5n+5){color:var(--star-red)}
 
     /* ===== Craft layer (elevación, foco) ===== */
     :root{--ease: cubic-bezier(.22,.61,.36,1);--dur: .22s;
@@ -141,7 +127,7 @@
 <!-- NAV -->
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
   <nav class="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
-    <a href="#top" class="brand-nav shrink-0"><span class="word">KÁPITAL</span><span class="sub">STUDIO</span></a>
+    <a href="#top" class="brand-nav shrink-0"><img src="logo.png" alt="Kápital Studio" class="h-10 w-auto"></a>
     <div class="hidden md:flex gap-6 text-sm font-semibold">
       <a href="#servicios">Servicios</a><a href="#nosotros">Nosotros</a>
       <a href="#ubicacion">Ubicación</a><a href="#faq">FAQ</a>
@@ -154,13 +140,7 @@
 <section id="top" class="relative" style="background:var(--brand-dark);color:#F4EFE7">
   <div class="max-w-6xl mx-auto px-4 pt-14 pb-20 md:pt-16 md:pb-28">
     <div class="brand-logo mb-10">
-      <svg class="arc" viewBox="0 0 400 40" width="260" height="26" aria-hidden="true"><path d="M8,32 Q200,-6 392,32" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
-      <p class="word">KÁPITAL</p>
-      <div class="studio-row">
-        <span class="star-row" aria-hidden="true"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></span>
-        <span class="sub">STUDIO</span>
-        <span class="star-row" aria-hidden="true"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></span>
-      </div>
+      <img src="logo.png" alt="Kápital Studio" class="mx-auto w-64 md:w-80" style="max-width:100%;height:auto">
     </div>
     <p class="kicker text-center md:text-left">Corte · Barba · Facial · Color</p>
     <h1 class="text-3xl md:text-5xl mt-3 max-w-3xl leading-tight text-center md:text-left mx-auto md:mx-0" style="color:#F8F4EC">Barbería premium en Los Olivos</h1>
