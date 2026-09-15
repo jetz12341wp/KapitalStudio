@@ -4,7 +4,7 @@ Sitio web de Kápital Studio (Av. Las Palmeras #5194, Los Olivos). Es un sitio *
 
 - `public/` — todo el sitio (HTML + Tailwind CDN, sin build).
 - Los servicios y precios están escritos directamente en `public/index.html` (no vienen de ninguna base de datos).
-- El botón "Reservar" y el formulario de la sección **Agenda tu cita** arman un mensaje de WhatsApp con los datos que la persona escribe (servicio, nombre, teléfono, fecha preferida, notas) y abren `wa.me` con ese mensaje ya listo para enviar. No se guarda nada en ningún servidor — el envío final lo hace la propia app de WhatsApp de quien reserva.
+- Todos los botones "Reservar" (nav, hero, tarjetas de servicio, carrusel, CTA final, botón flotante) llevan a la sección **Agenda tu cita**, donde está el formulario. Al enviarlo, el formulario arma un mensaje de WhatsApp con los datos que la persona escribió (servicio, nombre, teléfono, fecha preferida, hora preferida, notas) y abre `wa.me` con ese mensaje ya listo para enviar. Si el clic fue desde una tarjeta de servicio, el formulario preselecciona automáticamente ese servicio. No se guarda nada en ningún servidor — el envío final lo hace la propia app de WhatsApp de quien reserva.
 - WhatsApp del negocio: **+51 910 085 081**.
 
 ## Cómo desplegar
@@ -43,7 +43,7 @@ Para agregar, quitar o modificar un servicio, edita ambos lugares.
 
 ## Logo
 
-El header y el hero recrean el logo de Kápital Studio (arco, wordmark "KÁPITAL", "STUDIO" con estrellas) con CSS y la fuente Anton, no con el archivo de imagen original: no fue posible extraer el PNG compartido como referencia en el entorno donde se generó este sitio. Si tienes el archivo original (PNG/SVG), puedes reemplazar ese bloque por una etiqueta `<img>` apuntando a `public/logo.png`.
+El header y el hero recrean el logo de Kápital Studio (arco, wordmark "KÁPITAL", "STUDIO" con estrellas) con CSS y la fuente Cinzel, no con el archivo de imagen original: no fue posible extraer el PNG compartido como referencia en el entorno donde se generó este sitio. Si tienes el archivo original (PNG/SVG), puedes reemplazar ese bloque por una etiqueta `<img>` apuntando a `public/logo.png`.
 
 ## Pendiente antes de publicar
 
