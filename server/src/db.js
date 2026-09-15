@@ -24,7 +24,32 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
   CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(date);
+
+  CREATE TABLE IF NOT EXISTS services (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    duration INTEGER NOT NULL,
+    active INTEGER NOT NULL DEFAULT 1,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
+
+// Siembra inicial: solo la primera vez que se crea la base de datos (tabla vacía),
+// así el negocio arranca con algo que funciona y luego lo reemplaza con sus
+// servicios reales desde /admin.html sin tocar código.
+const { DEFAULT_SERVICES } = require('./config');
+const servicesCount = db.prepare('SELECT COUNT(*) AS n FROM services').get().n;
+if (servicesCount === 0) {
+  const insertDefault = db.prepare(
+    `INSERT INTO services (id, name, description, duration, active, sort_order) VALUES (@id, @name, @description, @duration, 1, @sort_order)`
+  );
+  const seedMany = db.transaction((rows) => {
+    rows.forEach((row, index) => insertDefault.run({ ...row, description: row.description || null, sort_order: index }));
+  });
+  seedMany(DEFAULT_SERVICES);
+}
 
 function getAppointmentsForDate(date) {
   return db
@@ -55,10 +80,65 @@ function listUpcomingAppointments() {
     .all();
 }
 
+function listActiveServices() {
+  return db.prepare(`SELECT * FROM services WHERE active = 1 ORDER BY sort_order, name`).all();
+}
+
+function listAllServices() {
+  return db.prepare(`SELECT * FROM services ORDER BY sort_order, name`).all();
+}
+
+function getService(id) {
+  return db.prepare(`SELECT * FROM services WHERE id = ?`).get(id);
+}
+
+function getActiveService(id) {
+  return db.prepare(`SELECT * FROM services WHERE id = ? AND active = 1`).get(id);
+}
+
+function createService({ id, name, description, duration }) {
+  const maxOrder = db.prepare(`SELECT COALESCE(MAX(sort_order), -1) AS m FROM services`).get().m;
+  db.prepare(
+    `INSERT INTO services (id, name, description, duration, active, sort_order) VALUES (?, ?, ?, ?, 1, ?)`
+  ).run(id, name, description || null, duration, maxOrder + 1);
+  return getService(id);
+}
+
+function updateService(id, { name, description, duration, active }) {
+  const current = getService(id);
+  if (!current) return null;
+  db.prepare(
+    `UPDATE services SET name = ?, description = ?, duration = ?, active = ? WHERE id = ?`
+  ).run(
+    name !== undefined ? name : current.name,
+    description !== undefined ? description : current.description,
+    duration !== undefined ? duration : current.duration,
+    active !== undefined ? (active ? 1 : 0) : current.active,
+    id
+  );
+  return getService(id);
+}
+
+function countAppointmentsForService(id) {
+  return db.prepare(`SELECT COUNT(*) AS n FROM appointments WHERE service_id = ?`).get(id).n;
+}
+
+function deleteService(id) {
+  db.prepare(`DELETE FROM services WHERE id = ?`).run(id);
+}
+
 module.exports = {
   db,
   getAppointmentsForDate,
   insertAppointment,
   setCalendarEventId,
   listUpcomingAppointments,
+  listActiveServices,
+  listAllServices,
+  getService,
+  getActiveService,
+  createService,
+  updateService,
+  countAppointmentsForService,
+  deleteService,
 };

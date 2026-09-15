@@ -45,7 +45,7 @@
       {"@type": "Question", "name": "¿Cómo reservo una cita en Barbería Skills?", "acceptedAnswer": {"@type": "Answer", "text": "Reservas directamente en esta página: eliges servicio, fecha y hora disponible, dejas tus datos y recibes confirmación al instante. Tu cita queda agendada automáticamente en nuestro calendario."}},
       {"@type": "Question", "name": "¿Cuál es el horario de atención?", "acceptedAnswer": {"@type": "Answer", "text": "Atendemos de lunes a sábado de 10:00 a. m. a 9:00 p. m., y domingos de 10:00 a. m. a 5:00 p. m."}},
       {"@type": "Question", "name": "¿Dónde están ubicados?", "acceptedAnswer": {"@type": "Answer", "text": "Estamos en Avenida Gran Chimú 1056, San Juan de Lurigancho, Lima."}},
-      {"@type": "Question", "name": "¿Qué servicios ofrecen?", "acceptedAnswer": {"@type": "Answer", "text": "Trabajamos por categorías: Skills Premium, Hair Styling, Skin Care, Nuevo Servicio y Otros Servicios. Elige la categoría al reservar tu cita."}},
+      {"@type": "Question", "name": "¿Qué servicios ofrecen?", "acceptedAnswer": {"@type": "Answer", "text": "Puedes ver el listado actualizado de servicios y su duración en la sección de Servicios de esta página, y elegir el que buscas directamente al reservar tu cita."}},
       {"@type": "Question", "name": "¿Necesito reservar con anticipación?", "acceptedAnswer": {"@type": "Answer", "text": "Te recomendamos reservar con anticipación: el formulario solo muestra los horarios realmente disponibles ese día, así evitas cruces de horario."}}
     ]
   }
@@ -60,6 +60,9 @@
       --brand-accent:#B8933F; --brand-gray:#6B655B;
     }
     html{scroll-behavior:smooth} body{color:var(--brand-dark)}
+    /* No depende del CDN de Tailwind: garantiza el ocultamiento aunque el CDN falle en cargar. */
+    .hidden{display:none!important}
+    @media (min-width:768px){ .md\:flex.hidden{display:flex!important} }
     .btn-primary{background:var(--brand-accent);color:#0F0D0A;font-weight:700;border-radius:8px;padding:.9rem 1.9rem;display:inline-block;transition:.18s;border:none;cursor:pointer;font-size:1rem}
     .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.06)}
     .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
@@ -127,7 +130,7 @@
 <section class="py-12" style="background:var(--brand-soft)">
   <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 px-4 text-center">
     <div><p class="text-3xl font-extrabold" style="color:var(--brand-accent)">100%</p><p class="text-sm font-semibold mt-1" style="color:var(--brand-gray)">reserva online</p></div>
-    <div><p class="text-3xl font-extrabold" style="color:var(--brand-accent)">5</p><p class="text-sm font-semibold mt-1" style="color:var(--brand-gray)">categorías de servicio</p></div>
+    <div><p id="services-count" class="text-3xl font-extrabold" style="color:var(--brand-accent)">—</p><p class="text-sm font-semibold mt-1" style="color:var(--brand-gray)">categorías de servicio</p></div>
     <div><p class="text-3xl font-extrabold" style="color:var(--brand-accent)">Lun–Sáb</p><p class="text-sm font-semibold mt-1" style="color:var(--brand-gray)">10:00 am – 9:00 pm</p></div>
     <div><p class="text-3xl font-extrabold" style="color:var(--brand-accent)">Dom</p><p class="text-sm font-semibold mt-1" style="color:var(--brand-gray)">10:00 am – 5:00 pm</p></div>
   </div>
@@ -139,32 +142,8 @@
     <p class="kicker">Nuestros servicios</p>
     <h2 class="text-2xl md:text-4xl mt-2">Todo lo que hacemos, por categoría</h2>
     <p class="mt-4 max-w-3xl" style="color:var(--brand-gray)">Elige la categoría que buscas y resérvala directamente en el formulario de más abajo.</p>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
-      <article class="rounded-xl border p-6">
-        <h3 class="text-lg font-extrabold">Skills Premium</h3>
-        <p class="mt-2 text-sm" style="color:var(--brand-gray)">Nuestros servicios insignia: cortes de autor y experiencia completa de barbería.</p>
-        <a href="#reserva" class="inline-block mt-4 font-bold text-sm" style="color:var(--brand-accent)" data-preselect="skills-premium">RESERVAR →</a>
-      </article>
-      <article class="rounded-xl border p-6">
-        <h3 class="text-lg font-extrabold">Hair Styling</h3>
-        <p class="mt-2 text-sm" style="color:var(--brand-gray)">Cortes clásicos, modernos y diseños a medida, con acabado y peinado incluido.</p>
-        <a href="#reserva" class="inline-block mt-4 font-bold text-sm" style="color:var(--brand-accent)" data-preselect="hair-styling">RESERVAR →</a>
-      </article>
-      <article class="rounded-xl border p-6">
-        <h3 class="text-lg font-extrabold">Skin Care</h3>
-        <p class="mt-2 text-sm" style="color:var(--brand-gray)">Cuidado facial y de piel para complementar tu corte y barba.</p>
-        <a href="#reserva" class="inline-block mt-4 font-bold text-sm" style="color:var(--brand-accent)" data-preselect="skin-care">RESERVAR →</a>
-      </article>
-      <article class="rounded-xl border p-6">
-        <h3 class="text-lg font-extrabold">Nuevo Servicio</h3>
-        <p class="mt-2 text-sm" style="color:var(--brand-gray)">Las últimas incorporaciones a nuestra carta, siempre renovando la propuesta.</p>
-        <a href="#reserva" class="inline-block mt-4 font-bold text-sm" style="color:var(--brand-accent)" data-preselect="nuevo-servicio">RESERVAR →</a>
-      </article>
-      <article class="rounded-xl border p-6">
-        <h3 class="text-lg font-extrabold">Otros Servicios</h3>
-        <p class="mt-2 text-sm" style="color:var(--brand-gray)">Servicios adicionales para completar tu visita a la barbería.</p>
-        <a href="#reserva" class="inline-block mt-4 font-bold text-sm" style="color:var(--brand-accent)" data-preselect="otros-servicios">RESERVAR →</a>
-      </article>
+    <div id="servicios-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+      <p style="color:var(--brand-gray)">Cargando servicios…</p>
     </div>
   </div>
 </section>
@@ -273,7 +252,7 @@
       <details class="faq"><summary>¿Cómo reservo una cita en Barbería Skills?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Reservas directamente en esta página: eliges servicio, fecha y hora disponible, dejas tus datos y recibes confirmación al instante. Tu cita queda agendada automáticamente en nuestro calendario.</p></details>
       <details class="faq"><summary>¿Cuál es el horario de atención?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Atendemos de lunes a sábado de 10:00 a. m. a 9:00 p. m., y domingos de 10:00 a. m. a 5:00 p. m.</p></details>
       <details class="faq"><summary>¿Dónde están ubicados?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Estamos en Avenida Gran Chimú 1056, San Juan de Lurigancho, Lima.</p></details>
-      <details class="faq"><summary>¿Qué servicios ofrecen?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Trabajamos por categorías: Skills Premium, Hair Styling, Skin Care, Nuevo Servicio y Otros Servicios. Elige la categoría al reservar tu cita.</p></details>
+      <details class="faq"><summary>¿Qué servicios ofrecen?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Puedes ver el listado actualizado de servicios y su duración en la sección de <a href="#servicios" style="color:var(--brand-accent);font-weight:700">Servicios</a> de esta página, y elegir el que buscas directamente al reservar tu cita.</p></details>
       <details class="faq"><summary>¿Necesito reservar con anticipación?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Te recomendamos reservar con anticipación: el formulario solo muestra los horarios realmente disponibles ese día, así evitas cruces de horario.</p></details>
     </div>
   </div>
@@ -299,7 +278,7 @@
       <div class="flex gap-3 mt-3"><a href="https://www.facebook.com/barberiaskills/" target="_blank" rel="noopener noreferrer">Facebook</a></div>
     </div>
     <div><p class="font-bold mb-2">SERVICIOS</p><ul class="space-y-1 text-white/80">
-      <li><a href="#servicios">Skills Premium</a></li><li><a href="#servicios">Hair Styling</a></li><li><a href="#servicios">Skin Care</a></li>
+      <li><a href="#servicios">Ver todos los servicios</a></li>
     </ul></div>
     <div><p class="font-bold mb-2">AYUDA</p><ul class="space-y-1 text-white/80">
       <li><a href="#faq">Preguntas frecuentes</a></li><li><a href="#reserva">Reservar cita</a></li><li><a href="libro-de-reclamaciones.html">Libro de Reclamaciones</a></li>
@@ -335,8 +314,32 @@
     messageEl.style.color = isError ? '#B3261E' : 'var(--brand-gray)';
   }
 
+  function escapeHtml(str){
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function renderServiceCards(services){
+    var countEl = document.getElementById('services-count');
+    if(countEl) countEl.textContent = services.length;
+    var grid = document.getElementById('servicios-grid');
+    if(services.length === 0){
+      grid.innerHTML = '<p style="color:var(--brand-gray)">Aún no hay servicios publicados. Vuelve pronto.</p>';
+      return;
+    }
+    grid.innerHTML = services.map(function(s){
+      var description = s.description ? escapeHtml(s.description) : ('Duración aproximada: ' + s.duration + ' min.');
+      return '<article class="rounded-xl border p-6">' +
+        '<h3 class="text-lg font-extrabold">' + escapeHtml(s.name) + '</h3>' +
+        '<p class="mt-2 text-sm" style="color:var(--brand-gray)">' + description + '</p>' +
+        '<a href="#reserva" class="inline-block mt-4 font-bold text-sm" style="color:var(--brand-accent)" data-preselect="' + escapeHtml(s.id) + '">RESERVAR →</a>' +
+        '</article>';
+    }).join('');
+  }
+
   function loadServices(){
-    fetch('/api/services')
+    return fetch('/api/services')
       .then(function(r){ if(!r.ok) throw new Error('services'); return r.json(); })
       .then(function(services){
         serviceSelect.innerHTML = '<option value="">Elige un servicio</option>';
@@ -346,9 +349,11 @@
           opt.textContent = s.name + ' (' + s.duration + ' min)';
           serviceSelect.appendChild(opt);
         });
+        renderServiceCards(services);
       })
       .catch(function(){
         setMessage('No se pudo cargar la lista de servicios. Intenta recargar la página.', true);
+        document.getElementById('servicios-grid').innerHTML = '<p style="color:var(--brand-gray)">No se pudo cargar la lista de servicios.</p>';
       });
   }
 
@@ -388,14 +393,14 @@
   serviceSelect.addEventListener('change', loadAvailability);
   dateInput.addEventListener('change', loadAvailability);
 
-  document.querySelectorAll('[data-preselect]').forEach(function(link){
-    link.addEventListener('click', function(){
-      var value = link.getAttribute('data-preselect');
-      setTimeout(function(){
-        serviceSelect.value = value;
-        loadAvailability();
-      }, 300);
-    });
+  document.getElementById('servicios-grid').addEventListener('click', function(e){
+    var link = e.target.closest('[data-preselect]');
+    if(!link) return;
+    var value = link.getAttribute('data-preselect');
+    setTimeout(function(){
+      serviceSelect.value = value;
+      loadAvailability();
+    }, 300);
   });
 
   form.addEventListener('submit', function(e){

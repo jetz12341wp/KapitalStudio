@@ -1,8 +1,8 @@
 const express = require('express');
-const { SERVICES, findService, ADMIN_TOKEN } = require('../config');
-const { getAppointmentsForDate, insertAppointment, setCalendarEventId, listUpcomingAppointments } = require('../db');
+const { getAppointmentsForDate, insertAppointment, setCalendarEventId, listUpcomingAppointments, getActiveService } = require('../db');
 const { computeAvailableSlots, isSlotAvailable, toMinutes, toHHMM } = require('../availability');
 const { createAppointmentEvent } = require('../googleCalendar');
+const { requireAdmin } = require('../adminAuth');
 
 const router = express.Router();
 
@@ -10,16 +10,12 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-router.get('/services', (req, res) => {
-  res.json(SERVICES);
-});
-
 router.get('/availability', (req, res) => {
   const { date, service } = req.query;
   if (!date || !DATE_RE.test(date)) {
     return res.status(400).json({ error: 'Fecha inválida. Usa el formato YYYY-MM-DD.' });
   }
-  const svc = findService(service);
+  const svc = getActiveService(service);
   if (!svc) {
     return res.status(400).json({ error: 'Servicio inválido.' });
   }
@@ -36,7 +32,7 @@ router.post('/appointments', async (req, res) => {
     return res.json({ id: null, calendarSynced: false });
   }
 
-  const svc = findService(service);
+  const svc = getActiveService(service);
   if (!svc) return res.status(400).json({ error: 'Servicio inválido.' });
   if (!date || !DATE_RE.test(date)) return res.status(400).json({ error: 'Fecha inválida.' });
   if (!time || !TIME_RE.test(time)) return res.status(400).json({ error: 'Hora inválida.' });
@@ -89,10 +85,7 @@ router.post('/appointments', async (req, res) => {
   res.status(201).json({ id, calendarSynced });
 });
 
-router.get('/appointments', (req, res) => {
-  if (!ADMIN_TOKEN || req.get('x-admin-token') !== ADMIN_TOKEN) {
-    return res.status(401).json({ error: 'No autorizado.' });
-  }
+router.get('/appointments', requireAdmin, (req, res) => {
   res.json(listUpcomingAppointments());
 });
 

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Panel de administración | Barbería Skills</title>
+  <meta name="robots" content="noindex, nofollow">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{--brand-accent:#B8933F;--brand-dark:#0F0D0A;--brand-gray:#6B655B;--brand-soft:#F4EFE7}
+    body{color:var(--brand-dark);background:#fff}
+    /* No depende del CDN de Tailwind: garantiza el toggle aunque el CDN falle en cargar. */
+    .hidden{display:none!important}
+    .btn-primary{background:var(--brand-accent);color:#0F0D0A;font-weight:700;border-radius:8px;padding:.7rem 1.4rem;border:none;cursor:pointer}
+    .btn-primary:disabled{opacity:.6;cursor:not-allowed}
+    .btn-outline{border:1.5px solid currentColor;font-weight:700;border-radius:8px;padding:.6rem 1.2rem;background:none;cursor:pointer}
+    .field{border:1px solid #E4DDD0;border-radius:8px;padding:.6rem .8rem;width:100%}
+    label{display:block;font-size:.78rem;font-weight:700;color:var(--brand-gray);margin-bottom:.25rem}
+    table{width:100%;border-collapse:collapse;font-size:.9rem}
+    th,td{text-align:left;padding:.6rem .5rem;border-bottom:1px solid #eee;vertical-align:top}
+    .badge{display:inline-block;font-size:.72rem;font-weight:700;padding:.15rem .55rem;border-radius:9999px}
+    .badge-active{background:#E6F4EA;color:#1E7E34}
+    .badge-inactive{background:#F3E8E8;color:#B3261E}
+  </style>
+</head>
+<body class="antialiased">
+  <div class="max-w-4xl mx-auto px-4 py-10">
+    <p class="text-xs font-bold uppercase tracking-widest" style="color:var(--brand-accent)">Barbería Skills</p>
+    <h1 class="text-2xl font-extrabold mt-1">Panel de administración</h1>
+    <p class="text-sm mt-2" style="color:var(--brand-gray)">Gestiona los servicios que aparecen en el formulario de reserva de tu web, y revisa tus próximas citas. Esta página no está enlazada desde el sitio público ni indexada; guárdala en tus marcadores.</p>
+
+    <section id="login-box" class="mt-8 border rounded-xl p-6" style="border-color:#E4DDD0">
+      <label for="admin-token">Token de administrador</label>
+      <div class="flex gap-3">
+        <input id="admin-token" type="password" class="field" placeholder="Pega aquí tu ADMIN_TOKEN" autocomplete="off">
+        <button id="login-btn" class="btn-primary">Entrar</button>
+      </div>
+      <p id="login-message" class="text-sm mt-2" style="color:#B3261E"></p>
+      <p class="text-xs mt-3" style="color:var(--brand-gray)">Es el valor de <code>ADMIN_TOKEN</code> configurado en el archivo <code>.env</code> del servidor. Se guarda solo en este navegador (localStorage), nunca se envía a ningún sitio externo.</p>
+    </section>
+
+    <section id="panel" class="mt-8 hidden">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-extrabold">Servicios</h2>
+        <button id="logout-btn" class="btn-outline text-sm">Salir</button>
+      </div>
+      <p class="text-sm mt-1" style="color:var(--brand-gray)">Solo los servicios <strong>activos</strong> aparecen en el formulario de reserva de la web.</p>
+
+      <div class="overflow-x-auto mt-4">
+        <table>
+          <thead><tr><th>Nombre</th><th>Descripción</th><th>Duración</th><th>Estado</th><th></th></tr></thead>
+          <tbody id="services-tbody"></tbody>
+        </table>
+      </div>
+
+      <form id="service-form" class="mt-8 border rounded-xl p-6 grid gap-4" style="border-color:#E4DDD0">
+        <h3 class="font-extrabold">Agregar servicio</h3>
+        <div>
+          <label for="new-name">Nombre</label>
+          <input id="new-name" name="name" type="text" class="field" required placeholder="Ej. Corte clásico">
+        </div>
+        <div>
+          <label for="new-description">Descripción (opcional)</label>
+          <input id="new-description" name="description" type="text" class="field" placeholder="Ej. Corte con máquina y tijera, incluye lavado">
+        </div>
+        <div class="max-w-xs">
+          <label for="new-duration">Duración (minutos)</label>
+          <input id="new-duration" name="duration" type="number" min="5" max="480" step="5" class="field" required placeholder="30">
+        </div>
+        <button type="submit" class="btn-primary w-max">Agregar servicio</button>
+        <p id="form-message" class="text-sm" role="status" aria-live="polite"></p>
+      </form>
+
+      <h2 class="text-xl font-extrabold mt-12">Próximas citas</h2>
+      <div class="overflow-x-auto mt-4">
+        <table>
+          <thead><tr><th>Fecha</th><th>Hora</th><th>Servicio</th><th>Cliente</th><th>Teléfono</th></tr></thead>
+          <tbody id="appointments-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+<script>
+(function(){
+  var STORAGE_KEY = 'barberia-skills-admin-token';
+  var token = null;
+
+  var loginBox = document.getElementById('login-box');
+  var panel = document.getElementById('panel');
+  var tokenInput = document.getElementById('admin-token');
+  var loginBtn = document.getElementById('login-btn');
+  var logoutBtn = document.getElementById('logout-btn');
+  var loginMessage = document.getElementById('login-message');
+  var servicesTbody = document.getElementById('services-tbody');
+  var appointmentsTbody = document.getElementById('appointments-tbody');
+  var serviceForm = document.getElementById('service-form');
+  var formMessage = document.getElementById('form-message');
+
+  function escapeHtml(str){
+    var div = document.createElement('div');
+    div.textContent = str == null ? '' : str;
+    return div.innerHTML;
+  }
+
+  function authFetch(url, options){
+    options = options || {};
+    options.headers = Object.assign({}, options.headers, { 'x-admin-token': token });
+    return fetch(url, options);
+  }
+
+  function showPanel(){
+    loginBox.classList.add('hidden');
+    panel.classList.remove('hidden');
+    loadServices();
+    loadAppointments();
+  }
+
+  function tryLogin(value){
+    token = value;
+    return authFetch('/api/admin/services').then(function(r){
+      if(!r.ok) throw new Error('unauthorized');
+      localStorage.setItem(STORAGE_KEY, token);
+      showPanel();
+    });
+  }
+
+  loginBtn.addEventListener('click', function(){
+    loginMessage.textContent = '';
+    var value = tokenInput.value.trim();
+    if(!value) return;
+    tryLogin(value).catch(function(){
+      loginMessage.textContent = 'Token incorrecto.';
+    });
+  });
+
+  logoutBtn.addEventListener('click', function(){
+    localStorage.removeItem(STORAGE_KEY);
+    token = null;
+    panel.classList.add('hidden');
+    loginBox.classList.remove('hidden');
+    tokenInput.value = '';
+  });
+
+  function renderServices(services){
+    servicesTbody.innerHTML = services.map(function(s){
+      var badge = s.active
+        ? '<span class="badge badge-active">Activo</span>'
+        : '<span class="badge badge-inactive">Inactivo</span>';
+      var toggleLabel = s.active ? 'Desactivar' : 'Activar';
+      return '<tr data-id="' + escapeHtml(s.id) + '">' +
+        '<td class="font-semibold">' + escapeHtml(s.name) + '</td>' +
+        '<td style="color:var(--brand-gray)">' + escapeHtml(s.description || '—') + '</td>' +
+        '<td>' + s.duration + ' min</td>' +
+        '<td>' + badge + '</td>' +
+        '<td class="whitespace-nowrap">' +
+          '<button class="btn-outline text-xs mr-2" data-action="toggle" data-active="' + (s.active ? '1' : '0') + '">' + toggleLabel + '</button>' +
+          '<button class="btn-outline text-xs" data-action="delete">Eliminar</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('') || '<tr><td colspan="5" style="color:var(--brand-gray)">Sin servicios todavía.</td></tr>';
+  }
+
+  function loadServices(){
+    authFetch('/api/admin/services')
+      .then(function(r){ return r.json(); })
+      .then(renderServices)
+      .catch(function(){ servicesTbody.innerHTML = '<tr><td colspan="5" style="color:#B3261E">No se pudo cargar la lista.</td></tr>'; });
+  }
+
+  servicesTbody.addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-action]');
+    if(!btn) return;
+    var row = btn.closest('tr');
+    var id = row.getAttribute('data-id');
+
+    if(btn.dataset.action === 'toggle'){
+      var nextActive = btn.dataset.active !== '1';
+      authFetch('/api/admin/services/' + encodeURIComponent(id), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active: nextActive })
+      }).then(loadServices);
+    }
+
+    if(btn.dataset.action === 'delete'){
+      if(!confirm('¿Eliminar este servicio? Si tiene citas asociadas, solo se desactivará.')) return;
+      authFetch('/api/admin/services/' + encodeURIComponent(id), { method: 'DELETE' }).then(loadServices);
+    }
+  });
+
+  serviceForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    formMessage.textContent = '';
+    var payload = {
+      name: document.getElementById('new-name').value.trim(),
+      description: document.getElementById('new-description').value.trim(),
+      duration: Number(document.getElementById('new-duration').value)
+    };
+    authFetch('/api/admin/services', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function(r){ return r.json().then(function(body){ return { ok: r.ok, body: body }; }); })
+      .then(function(res){
+        if(!res.ok){
+          formMessage.style.color = '#B3261E';
+          formMessage.textContent = res.body.error || 'No se pudo agregar el servicio.';
+          return;
+        }
+        serviceForm.reset();
+        formMessage.style.color = 'var(--brand-gray)';
+        formMessage.textContent = 'Servicio agregado.';
+        loadServices();
+      })
+      .catch(function(){
+        formMessage.style.color = '#B3261E';
+        formMessage.textContent = 'Error de conexión.';
+      });
+  });
+
+  function loadAppointments(){
+    authFetch('/api/appointments')
+      .then(function(r){ return r.json(); })
+      .then(function(appts){
+        appointmentsTbody.innerHTML = appts.map(function(a){
+          return '<tr>' +
+            '<td>' + escapeHtml(a.date) + '</td>' +
+            '<td>' + escapeHtml(a.start_time) + '–' + escapeHtml(a.end_time) + '</td>' +
+            '<td>' + escapeHtml(a.service_id) + '</td>' +
+            '<td>' + escapeHtml(a.name) + '</td>' +
+            '<td>' + escapeHtml(a.phone) + '</td>' +
+          '</tr>';
+        }).join('') || '<tr><td colspan="5" style="color:var(--brand-gray)">Sin citas próximas.</td></tr>';
+      })
+      .catch(function(){ appointmentsTbody.innerHTML = '<tr><td colspan="5" style="color:#B3261E">No se pudo cargar la lista.</td></tr>'; });
+  }
+
+  var saved = localStorage.getItem(STORAGE_KEY);
+  if(saved){
+    tryLogin(saved).catch(function(){ localStorage.removeItem(STORAGE_KEY); });
+  }
+})();
+</script>
+</body>
+</html>

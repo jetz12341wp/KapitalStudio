@@ -3,11 +3,13 @@ const express = require('express');
 const cors = require('cors');
 const { PORT } = require('./config');
 const appointmentsRouter = require('./routes/appointments');
+const servicesRouter = require('./routes/services');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use('/api', servicesRouter);
 app.use('/api', appointmentsRouter);
 
 // Sirve el front-end estático (public/) desde el mismo servidor.

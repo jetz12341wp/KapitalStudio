@@ -24,6 +24,18 @@ Abre `http://localhost:3000` — verás el sitio y el formulario de reserva func
 
 Sin configurar Google Calendar, las reservas igual se guardan en la base de datos; solo no se crea el evento (`calendarSynced: false` en la respuesta).
 
+## Administrar los servicios (sin tocar código)
+
+Los servicios que aparecen en el formulario de reserva **no están escritos en el código**: viven en la base de datos y se administran desde `http://localhost:3000/admin.html` (o `https://tu-dominio/admin.html` una vez desplegado).
+
+1. Abre `/admin.html` e ingresa el valor de `ADMIN_TOKEN` que pusiste en `server/.env`.
+2. Ahí puedes **agregar** tus servicios reales (nombre, descripción y duración en minutos), **desactivar** los que ya no ofreces (dejan de verse en la web, pero no se borran citas pasadas que los referencian) y **eliminar** los que nunca tuvieron citas.
+3. El sitio público (la sección "Servicios" y el selector del formulario de reserva) se actualiza solo, leyendo siempre `/api/services`.
+
+La base de datos arranca la primera vez con 3 servicios de ejemplo (definidos en `server/src/config.js`, `DEFAULT_SERVICES`, solo como semilla inicial) — reemplázalos por los tuyos desde `/admin.html` antes de publicar.
+
+`/admin.html` no está enlazada desde el sitio ni aparece en el sitemap (lleva `noindex`), pero no depende de eso para estar segura: cada acción pasa por los endpoints `/api/admin/*`, protegidos por `ADMIN_TOKEN` en el backend.
+
 ## Configurar la sincronización con Google Calendar
 
 Se usa un **Service Account** de Google Cloud, así el backend agenda directamente sin que nadie tenga que iniciar sesión cada vez.
@@ -42,17 +54,23 @@ Se usa un **Service Account** de Google Cloud, así el backend agenda directamen
 
 ## API
 
-- `GET /api/services` — lista de categorías de servicio (id, nombre, duración en minutos).
+- `GET /api/services` — lista de servicios **activos** (id, nombre, descripción, duración en minutos). La consume el formulario público.
 - `GET /api/availability?date=YYYY-MM-DD&service=<id>` — horarios libres ese día para ese servicio.
 - `POST /api/appointments` — crea una reserva. Body JSON: `{ service, date, time, name, phone, email?, notes? }`.
-- `GET /api/appointments` — lista las próximas citas (requiere el header `x-admin-token` con el valor de `ADMIN_TOKEN`). Es la forma de que el negocio vea sus citas sin abrir la base de datos a mano.
+- `GET /api/appointments` — lista las próximas citas (requiere el header `x-admin-token`).
+- `GET /api/admin/services` — lista todos los servicios, activos e inactivos (admin).
+- `POST /api/admin/services` — crea un servicio. Body JSON: `{ name, description?, duration }` (admin).
+- `PUT /api/admin/services/:id` — actualiza nombre, descripción, duración o estado activo/inactivo (admin).
+- `DELETE /api/admin/services/:id` — elimina el servicio, o lo desactiva si ya tiene citas asociadas (admin).
+
+Los endpoints marcados "(admin)" requieren el header `x-admin-token` con el valor de `ADMIN_TOKEN`; `/admin.html` los usa automáticamente tras iniciar sesión.
 
 ## Horario de atención (usado para calcular disponibilidad)
 
 - Lunes a sábado: 10:00 a. m. – 9:00 p. m.
 - Domingo: 10:00 a. m. – 5:00 p. m.
 
-Se puede ajustar en `server/src/config.js` (`BUSINESS_HOURS`), junto con la duración de cada servicio.
+Se puede ajustar en `server/src/config.js` (`BUSINESS_HOURS`). La duración de cada servicio se administra desde `/admin.html`, no en este archivo.
 
 ## Pendiente antes de publicar
 

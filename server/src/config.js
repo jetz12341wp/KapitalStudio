@@ -1,13 +1,12 @@
 require('dotenv').config();
 
-// Categorías de servicio de Barbería Skills. La duración define el tamaño
-// del bloque que ocupa cada cita en la agenda.
-const SERVICES = [
-  { id: 'skills-premium', name: 'Skills Premium', duration: 60 },
-  { id: 'hair-styling', name: 'Hair Styling', duration: 45 },
-  { id: 'skin-care', name: 'Skin Care', duration: 30 },
-  { id: 'nuevo-servicio', name: 'Nuevo Servicio', duration: 45 },
-  { id: 'otros-servicios', name: 'Otros Servicios', duration: 30 },
+// Servicios con los que arranca la base de datos la primera vez (solo semilla
+// inicial). Una vez desplegado, el negocio los edita, borra o agrega los suyos
+// desde /admin.html sin tocar este archivo.
+const DEFAULT_SERVICES = [
+  { id: 'skills-premium', name: 'Skills Premium', description: 'Cortes de autor y experiencia completa de barbería.', duration: 60 },
+  { id: 'hair-styling', name: 'Hair Styling', description: 'Cortes clásicos, modernos y diseños a medida.', duration: 45 },
+  { id: 'skin-care', name: 'Skin Care', description: 'Cuidado facial y de piel.', duration: 30 },
 ];
 
 // 0 = domingo ... 6 = sábado
@@ -27,7 +26,7 @@ const TIMEZONE_OFFSET = process.env.BUSINESS_TIMEZONE_OFFSET || '-05:00';
 
 module.exports = {
   PORT: process.env.PORT || 3000,
-  SERVICES,
+  DEFAULT_SERVICES,
   BUSINESS_HOURS,
   SLOT_STEP_MINUTES,
   TIMEZONE,
@@ -36,8 +35,4 @@ module.exports = {
   GOOGLE_CALENDAR_ID: process.env.GOOGLE_CALENDAR_ID || '',
   GOOGLE_SERVICE_ACCOUNT_JSON: process.env.GOOGLE_SERVICE_ACCOUNT_JSON || '',
   GOOGLE_APPLICATION_CREDENTIALS: process.env.GOOGLE_APPLICATION_CREDENTIALS || '',
-};
-
-module.exports.findService = function findService(id) {
-  return SERVICES.find((s) => s.id === id);
 };
