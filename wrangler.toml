@@ -1,25 +1,5 @@
 name = "kapital-studio"
-main = "src/index.js"
 compatibility_date = "2024-09-23"
 
-# Cloudflare sirve los archivos de public/ directo (asset-first routing):
-# si una URL coincide con un archivo ahí, ni siquiera se invoca el Worker.
-# El Worker (src/index.js) solo entra a tallar en rutas que no coinciden con
-# ningún archivo estático — en la práctica, /api/*.
 [assets]
 directory = "public"
-binding = "ASSETS"
-
-# El binding de D1 para el sitio YA DESPLEGADO se configura en el dashboard
-# de Cloudflare → tu proyecto (Workers & Pages) → Settings → Bindings →
-# Add → D1 Database → variable "DB" → tu base existente. No hace falta
-# declarar la base D1 aquí para que el sitio en producción funcione.
-#
-# Para DESARROLLO LOCAL con una base D1 (opcional, ver README → "Desarrollo
-# local"), descomenta este bloque y pon los datos de tu base real (no son
-# sensibles, son solo identificadores, no credenciales):
-#
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "TU-BASE-D1"
-# database_id = "TU-DATABASE-ID"

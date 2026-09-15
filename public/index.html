@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
-<!-- RUBRO: Barbería (belleza/estética masculina) · keyword tipo "barbería Los Olivos" · sistema de reservas propio (front + back en Node/Express/SQLite) con sincronización a Google Calendar -->
+<!-- RUBRO: Barbería (belleza/estética masculina) · keyword tipo "barbería Los Olivos" · sitio 100% estático, reservas por WhatsApp (sin backend ni base de datos) -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <!-- ===== SEO ===== -->
   <title>Kápital Studio | Barbería premium en Los Olivos</title>
-  <meta name="description" content="Kápital Studio, en Av. Las Palmeras #5194, Los Olivos. Corte, barba, facial y color. Abierto todos los días. Reserva tu cita online, confirmación al instante.">
+  <meta name="description" content="Kápital Studio, en Av. Las Palmeras #5194, Los Olivos. Corte, barba, facial y color. Abierto todos los días. Reserva tu cita por WhatsApp.">
   <meta name="keywords" content="barberia los olivos, barberia premium lima, corte de cabello los olivos, kapital studio, corte degradado los olivos, perfilado de barba los olivos">
   <link rel="canonical" href="https://TU-DOMINIO-AQUI.pe/">
   <meta name="robots" content="index, follow">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta property="og:title" content="Kápital Studio | Barbería premium en Los Olivos">
-  <meta property="og:description" content="Corte, barba, facial y color en Av. Las Palmeras #5194, Los Olivos. Abierto todos los días. Reserva online, confirmación al instante.">
+  <meta property="og:description" content="Corte, barba, facial y color en Av. Las Palmeras #5194, Los Olivos. Abierto todos los días. Reserva por WhatsApp.">
   <meta property="og:image" content="https://TU-DOMINIO-AQUI.pe/static/og/home.png">
   <meta property="og:url" content="https://TU-DOMINIO-AQUI.pe/">
   <meta property="og:type" content="website">
@@ -20,13 +20,14 @@
   <meta property="og:site_name" content="Kápital Studio">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Kápital Studio | Barbería premium en Los Olivos">
-  <meta name="twitter:description" content="Corte, barba, facial y color en Av. Las Palmeras #5194, Los Olivos. Reserva online.">
+  <meta name="twitter:description" content="Corte, barba, facial y color en Av. Las Palmeras #5194, Los Olivos. Reserva por WhatsApp.">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "HairSalon",
     "name": "Kápital Studio",
     "url": "https://TU-DOMINIO-AQUI.pe/",
+    "telephone": "+51910085081",
     "address": {"@type": "PostalAddress", "streetAddress": "Av. Las Palmeras #5194", "addressLocality": "Los Olivos", "addressRegion": "Lima", "addressCountry": "PE"},
     "openingHoursSpecification": [
       {"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "10:00", "closes": "21:00"}
@@ -38,11 +39,11 @@
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
-      {"@type": "Question", "name": "¿Cómo reservo una cita en Kápital Studio?", "acceptedAnswer": {"@type": "Answer", "text": "Reservas directamente en esta página: eliges servicio, fecha y hora disponible, dejas tus datos y recibes confirmación al instante. Tu cita queda agendada automáticamente en nuestro calendario."}},
+      {"@type": "Question", "name": "¿Cómo reservo una cita en Kápital Studio?", "acceptedAnswer": {"@type": "Answer", "text": "Escríbenos por WhatsApp al +51 910 085 081 indicando el servicio que quieres, y coordinamos el horario contigo."}},
       {"@type": "Question", "name": "¿Cuál es el horario de atención?", "acceptedAnswer": {"@type": "Answer", "text": "Atendemos todos los días de 10:00 a. m. a 9:00 p. m."}},
       {"@type": "Question", "name": "¿Dónde están ubicados?", "acceptedAnswer": {"@type": "Answer", "text": "Estamos en Av. Las Palmeras #5194, Los Olivos, Lima."}},
-      {"@type": "Question", "name": "¿Qué servicios ofrecen?", "acceptedAnswer": {"@type": "Answer", "text": "Puedes ver el listado actualizado de servicios y precios en la sección de Servicios de esta página, y elegir el que buscas directamente al reservar tu cita."}},
-      {"@type": "Question", "name": "¿Necesito reservar con anticipación?", "acceptedAnswer": {"@type": "Answer", "text": "Te recomendamos reservar con anticipación: el formulario solo muestra los horarios realmente disponibles ese día, así evitas cruces de horario."}}
+      {"@type": "Question", "name": "¿Qué servicios ofrecen?", "acceptedAnswer": {"@type": "Answer", "text": "Corte clásico, corte degradado, corte a tijera, perfilado de barba, limpieza facial, ondulación y tinte. Puedes ver los precios en la sección de Servicios de esta página."}},
+      {"@type": "Question", "name": "¿Necesito reservar con anticipación?", "acceptedAnswer": {"@type": "Answer", "text": "Te recomendamos escribirnos por WhatsApp con anticipación para asegurar el horario que prefieras."}}
     ]
   }
   </script>
@@ -55,6 +56,7 @@
       --brand-primary:#1A1712; --brand-soft:#F4EFE7; --brand-dark:#0F0D0A;
       --brand-accent:#D41E35; --brand-accent-2:#2B4C8C; --brand-gray:#6B655B;
       --star-red:var(--brand-accent); --star-blue:var(--brand-accent-2);
+      --whatsapp:#25D366;
     }
     html{scroll-behavior:smooth} body{color:var(--brand-dark)}
     /* No depende del CDN de Tailwind: garantiza el ocultamiento aunque el CDN falle en cargar. */
@@ -62,22 +64,20 @@
     @media (min-width:768px){ .md\:flex.hidden{display:flex!important} }
     .btn-primary{background:var(--brand-accent);color:#fff;font-weight:700;border-radius:8px;padding:.9rem 1.9rem;display:inline-block;transition:.18s;border:none;cursor:pointer;font-size:1rem}
     .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.06)}
-    .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
     .btn-outline{border:1.5px solid currentColor;font-weight:700;border-radius:8px;padding:.9rem 1.9rem;display:inline-block}
+    .btn-whatsapp{background:var(--whatsapp);color:#fff;font-weight:700;border-radius:8px;padding:.9rem 1.9rem;display:inline-flex;align-items:center;gap:.5rem;transition:.18s}
+    .btn-whatsapp:hover{transform:translateY(-2px);filter:brightness(1.06)}
     .kicker{color:var(--brand-accent);text-transform:uppercase;letter-spacing:.22em;font-weight:700;font-size:.78rem}
     .pill{display:inline-block;font-size:.78rem;font-weight:600;padding:.4rem .9rem;border-radius:9999px;background:var(--brand-soft);color:var(--brand-primary)}
-    .price-tag{color:var(--brand-accent);font-weight:800;white-space:nowrap}
     details.faq{border-bottom:1px solid #E4DDD0;padding:1rem 0}
     details.faq summary{font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:1rem}
     details.faq summary::after{content:"+";color:var(--brand-accent);font-size:1.4rem;line-height:1}
     details.faq[open] summary::after{content:"–"}
     .reserve-float{position:fixed;right:20px;bottom:20px;z-index:50;display:flex;align-items:center;gap:.5rem;
-      padding:.85rem 1.3rem;border-radius:9999px;background:var(--brand-accent);color:#fff;font-weight:700;font-size:.85rem;
+      padding:.85rem 1.3rem;border-radius:9999px;background:var(--whatsapp);color:#fff;font-weight:700;font-size:.85rem;
       box-shadow:0 6px 18px rgba(0,0,0,.28);transition:transform .15s}
     .reserve-float:hover{transform:scale(1.05)}
-    .field{border:1px solid #E4DDD0;border-radius:8px;padding:.8rem 1rem;width:100%;font-family:inherit;font-size:1rem;background:#fff}
-    .field:focus{outline:none;border-color:var(--brand-accent)}
-    label{display:block;text-align:left;font-size:.8rem;font-weight:700;color:var(--brand-gray);margin-bottom:.35rem}
+    .reserve-float svg{width:20px;height:20px}
 
     /* ===== Tarjetas de servicio destacadas ===== */
     .service-card{border-radius:16px;overflow:hidden;border:1px solid #E4DDD0;background:#fff;display:flex;flex-direction:column}
@@ -89,7 +89,6 @@
     .service-price-row{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;margin-top:1rem;padding-top:1rem;border-top:1px dashed #E4DDD0}
     .service-price-note{font-size:.66rem;text-transform:uppercase;letter-spacing:.12em;color:var(--brand-gray);display:block;margin-bottom:.15rem}
     .service-price{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:var(--brand-accent);line-height:1}
-    .service-price small{font-family:'Jost',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-gray);display:block}
 
     /* ===== Carrusel de servicios adicionales ===== */
     .carousel-track{display:flex;gap:1.1rem;overflow-x:auto;scroll-snap-type:x mandatory;padding:.2rem .2rem 1rem;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
@@ -121,15 +120,14 @@
     .star-row span:nth-child(5n+4){color:#fff}
     .star-row span:nth-child(5n+5){color:var(--star-red)}
 
-    /* ===== Craft layer (elevación, foco, reveal) ===== */
-    :root{--ease: cubic-bezier(.22,.61,.36,1);--ease-out: cubic-bezier(.16,1,.3,1);--dur: .22s;
+    /* ===== Craft layer (elevación, foco) ===== */
+    :root{--ease: cubic-bezier(.22,.61,.36,1);--dur: .22s;
       --shadow-sm: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10);
-      --shadow-md: 0 4px 8px -2px rgba(16,24,40,.10), 0 2px 4px -2px rgba(16,24,40,.06);
       --shadow-lg: 0 12px 24px -8px rgba(16,24,40,.18), 0 6px 12px -6px rgba(16,24,40,.10);
       --ring: color-mix(in srgb, var(--brand-accent) 45%, transparent);}
     body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-    a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible{outline:none;box-shadow:0 0 0 3px var(--ring);border-radius:8px}
-    a, button, .btn-primary, .btn-outline, article{transition:color var(--dur) var(--ease), background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease), filter var(--dur) var(--ease)}
+    a:focus-visible, button:focus-visible, summary:focus-visible{outline:none;box-shadow:0 0 0 3px var(--ring);border-radius:8px}
+    a, button, .btn-primary, .btn-outline, .btn-whatsapp, article{transition:color var(--dur) var(--ease), background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease), filter var(--dur) var(--ease)}
     article{box-shadow:var(--shadow-sm)} article:hover{box-shadow:var(--shadow-lg);transform:translateY(-3px)}
     @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 
@@ -166,20 +164,23 @@
     </div>
     <p class="kicker text-center md:text-left">Corte · Barba · Facial · Color</p>
     <h1 class="text-3xl md:text-5xl mt-3 max-w-3xl leading-tight text-center md:text-left mx-auto md:mx-0" style="color:#F8F4EC">Barbería premium en Los Olivos</h1>
-    <p class="mt-5 max-w-2xl text-lg text-center md:text-left mx-auto md:mx-0" style="color:#C9C1B4">Cada corte es una experiencia personalizada: te vas con estilo y con confianza. Reserva online y elige el horario que más te convenga.</p>
+    <p class="mt-5 max-w-2xl text-lg text-center md:text-left mx-auto md:mx-0" style="color:#C9C1B4">Cada corte es una experiencia personalizada: te vas con estilo y con confianza. Escríbenos por WhatsApp y coordinamos tu horario.</p>
     <div class="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">
-      <a href="#reserva" class="btn-primary">Reservar cita</a>
+      <a href="https://wa.me/51910085081?text=Hola%20K%C3%A1pital%20Studio%2C%20quiero%20reservar%20una%20cita." class="btn-whatsapp" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 32 32" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.2 1.7 6L4 29l8.2-1.6c1.7.9 3.7 1.4 5.8 1.4 6.6 0 12-5.4 12-12S22.6 3 16 3zm6.6 16.9c-.3.8-1.6 1.5-2.2 1.6-.6.1-1.3.2-3.7-.8-3.1-1.3-5.1-4.5-5.3-4.7-.2-.2-1.3-1.7-1.3-3.2s.8-2.3 1.1-2.6c.3-.3.6-.4.8-.4h.6c.2 0 .5-.1.7.5l1 2.4c.1.2.1.4 0 .6l-.4.7-.6.6c-.2.2-.4.4-.2.8.2.4 1 1.6 2.1 2.6 1.4 1.3 2.6 1.7 3 1.9.4.2.6.1.8-.1l1.2-1.4c.2-.3.5-.2.8-.1l2.4 1.1c.3.2.6.3.7.5.1.1.1.8-.2 1.5z"/></svg>
+        Reservar por WhatsApp
+      </a>
       <a href="#ubicacion" class="btn-outline" style="color:#F4EFE7">Ver ubicación</a>
     </div>
-    <p class="mt-6 text-sm text-center md:text-left" style="color:#C9C1B4">📍 Av. Las Palmeras #5194, Los Olivos · Confirmación al instante</p>
+    <p class="mt-6 text-sm text-center md:text-left" style="color:#C9C1B4">📍 Av. Las Palmeras #5194, Los Olivos · 📱 +51 910 085 081</p>
   </div>
 </section>
 
 <!-- STATS -->
 <section class="py-12" style="background:var(--brand-soft)">
   <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 px-4 text-center">
-    <div><p class="text-3xl font-extrabold" style="color:var(--brand-accent)">100%</p><p class="text-sm font-semibold mt-1" style="color:var(--brand-gray)">reserva online</p></div>
-    <div><p id="services-count" class="text-3xl font-extrabold" style="color:var(--brand-accent)">—</p><p class="text-sm font-semibold mt-1" style="color:var(--brand-gray)">servicios</p></div>
+    <div><p class="text-3xl font-extrabold" style="color:var(--brand-accent)">100%</p><p class="text-sm font-semibold mt-1" style="color:var(--brand-gray)">reserva por WhatsApp</p></div>
+    <div><p class="text-3xl font-extrabold" style="color:var(--brand-accent)">7</p><p class="text-sm font-semibold mt-1" style="color:var(--brand-gray)">servicios</p></div>
     <div><p class="text-3xl font-extrabold" style="color:var(--brand-accent)">Todos</p><p class="text-sm font-semibold mt-1" style="color:var(--brand-gray)">los días</p></div>
     <div><p class="text-3xl font-extrabold" style="color:var(--brand-accent)">10–9</p><p class="text-sm font-semibold mt-1" style="color:var(--brand-gray)">10:00 am – 9:00 pm</p></div>
   </div>
@@ -190,13 +191,53 @@
   <div class="max-w-6xl mx-auto px-4">
     <p class="kicker">Nuestros servicios</p>
     <h2 class="text-2xl md:text-4xl mt-2">Servicios y precios</h2>
-    <p class="mt-4 max-w-3xl" style="color:var(--brand-gray)">Elige el servicio que buscas y resérvalo directamente en el formulario de más abajo.</p>
+    <p class="mt-4 max-w-3xl" style="color:var(--brand-gray)">Elige el servicio que buscas y resérvalo directo por WhatsApp — el mensaje ya viene armado.</p>
 
-    <div id="servicios-featured" class="grid md:grid-cols-3 gap-6 mt-10">
-      <p style="color:var(--brand-gray)">Cargando servicios…</p>
+    <!-- Destacados -->
+    <div class="grid md:grid-cols-3 gap-6 mt-10">
+      <article class="service-card">
+        <div class="service-visual" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.2" cy="6" r="2.4"/><circle cx="6.2" cy="18" r="2.4"/><line x1="8.3" y1="7.4" x2="20" y2="19"/><line x1="8.3" y1="16.6" x2="20" y2="5"/></svg>
+        </div>
+        <div class="service-body">
+          <h3 class="font-extrabold">Corte clásico</h3>
+          <p class="service-desc">Corte tradicional a máquina y tijera. · ⏱ 30 min</p>
+          <div class="service-price-row">
+            <a href="https://wa.me/51910085081?text=Hola%20K%C3%A1pital%20Studio%2C%20quiero%20reservar%3A%20Corte%20cl%C3%A1sico%20(S%2F%2025)." class="font-bold text-sm" style="color:var(--brand-accent)" target="_blank" rel="noopener noreferrer">RESERVAR →</a>
+            <div class="text-right"><span class="service-price-note">Precio</span><span class="service-price">S/ 25</span></div>
+          </div>
+        </div>
+      </article>
+      <article class="service-card">
+        <div class="service-visual" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.2" cy="6" r="2.4"/><circle cx="6.2" cy="18" r="2.4"/><line x1="8.3" y1="7.4" x2="20" y2="19"/><line x1="8.3" y1="16.6" x2="20" y2="5"/></svg>
+        </div>
+        <div class="service-body">
+          <h3 class="font-extrabold">Corte degradado</h3>
+          <p class="service-desc">Fade / degradado a máquina. · ⏱ 30 min</p>
+          <div class="service-price-row">
+            <a href="https://wa.me/51910085081?text=Hola%20K%C3%A1pital%20Studio%2C%20quiero%20reservar%3A%20Corte%20degradado%20(S%2F%2030)." class="font-bold text-sm" style="color:var(--brand-accent)" target="_blank" rel="noopener noreferrer">RESERVAR →</a>
+            <div class="text-right"><span class="service-price-note">Precio</span><span class="service-price">S/ 30</span></div>
+          </div>
+        </div>
+      </article>
+      <article class="service-card">
+        <div class="service-visual" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.2" cy="6" r="2.4"/><circle cx="6.2" cy="18" r="2.4"/><line x1="8.3" y1="7.4" x2="20" y2="19"/><line x1="8.3" y1="16.6" x2="20" y2="5"/></svg>
+        </div>
+        <div class="service-body">
+          <h3 class="font-extrabold">Corte a tijera</h3>
+          <p class="service-desc">Corte trabajado íntegramente a tijera. · ⏱ 40 min</p>
+          <div class="service-price-row">
+            <a href="https://wa.me/51910085081?text=Hola%20K%C3%A1pital%20Studio%2C%20quiero%20reservar%3A%20Corte%20a%20tijera%20(S%2F%2030)." class="font-bold text-sm" style="color:var(--brand-accent)" target="_blank" rel="noopener noreferrer">RESERVAR →</a>
+            <div class="text-right"><span class="service-price-note">Precio</span><span class="service-price">S/ 30</span></div>
+          </div>
+        </div>
+      </article>
     </div>
 
-    <div id="servicios-mas" class="mt-12 hidden">
+    <!-- Carrusel: el resto, ordenado de menor a mayor precio -->
+    <div class="mt-12">
       <div class="flex items-center justify-between mb-4">
         <h3 class="font-extrabold text-lg">Más servicios</h3>
         <div class="flex gap-2">
@@ -204,7 +245,52 @@
           <button type="button" id="carousel-next" class="carousel-nav-btn" aria-label="Más servicios">›</button>
         </div>
       </div>
-      <div id="servicios-carousel" class="carousel-track"></div>
+      <div id="servicios-carousel" class="carousel-track">
+        <article class="carousel-card">
+          <div class="carousel-visual" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="4" rx="1.2"/><path d="M6.5 10V7.3A2.3 2.3 0 0 1 8.8 5h6.4a2.3 2.3 0 0 1 2.3 2.3V10"/></svg>
+          </div>
+          <div class="carousel-body">
+            <h4>Perfilado de barba</h4>
+            <p class="carousel-price">S/ 15</p>
+            <p class="text-xs mt-1" style="color:var(--brand-gray)">⏱ 15 min</p>
+            <a href="https://wa.me/51910085081?text=Hola%20K%C3%A1pital%20Studio%2C%20quiero%20reservar%3A%20Perfilado%20de%20barba%20(S%2F%2015)." class="inline-block mt-2 font-bold text-xs" style="color:var(--brand-accent)" target="_blank" rel="noopener noreferrer">RESERVAR →</a>
+          </div>
+        </article>
+        <article class="carousel-card">
+          <div class="carousel-visual" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c4.2 2 7 6.2 7 10.2A7 7 0 0 1 5 13.2C5 9.2 7.8 5 12 3Z"/><path d="M12 8.5v9"/></svg>
+          </div>
+          <div class="carousel-body">
+            <h4>Limpieza facial</h4>
+            <p class="carousel-price">S/ 50</p>
+            <p class="text-xs mt-1" style="color:var(--brand-gray)">⏱ 45 min</p>
+            <a href="https://wa.me/51910085081?text=Hola%20K%C3%A1pital%20Studio%2C%20quiero%20reservar%3A%20Limpieza%20facial%20(S%2F%2050)." class="inline-block mt-2 font-bold text-xs" style="color:var(--brand-accent)" target="_blank" rel="noopener noreferrer">RESERVAR →</a>
+          </div>
+        </article>
+        <article class="carousel-card">
+          <div class="carousel-visual" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8c2-3 4-3 6 0s4 3 6 0 4-3 6.5 0"/><path d="M2.5 15.5c2-3 4-3 6 0s4 3 6 0 4-3 6.5 0"/></svg>
+          </div>
+          <div class="carousel-body">
+            <h4>Ondulación</h4>
+            <p class="carousel-price">S/ 100</p>
+            <p class="text-xs mt-1" style="color:var(--brand-gray)">⏱ 90 min</p>
+            <a href="https://wa.me/51910085081?text=Hola%20K%C3%A1pital%20Studio%2C%20quiero%20reservar%3A%20Ondulaci%C3%B3n%20(S%2F%20100)." class="inline-block mt-2 font-bold text-xs" style="color:var(--brand-accent)" target="_blank" rel="noopener noreferrer">RESERVAR →</a>
+          </div>
+        </article>
+        <article class="carousel-card">
+          <div class="carousel-visual" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6.2 7.2 6.2 11.3A6.2 6.2 0 0 1 5.8 14.3C5.8 10.2 12 3 12 3Z"/></svg>
+          </div>
+          <div class="carousel-body">
+            <h4>Tinte</h4>
+            <p class="carousel-price">Desde S/ 150</p>
+            <p class="text-xs mt-1" style="color:var(--brand-gray)">⏱ 60 min</p>
+            <a href="https://wa.me/51910085081?text=Hola%20K%C3%A1pital%20Studio%2C%20quiero%20reservar%3A%20Tinte%20(desde%20S%2F%20150)." class="inline-block mt-2 font-bold text-xs" style="color:var(--brand-accent)" target="_blank" rel="noopener noreferrer">RESERVAR →</a>
+          </div>
+        </article>
+      </div>
     </div>
   </div>
 </section>
@@ -225,7 +311,7 @@
       </article>
       <article class="rounded-xl border bg-white p-6">
         <h3 class="font-extrabold">Reserva sin complicaciones</h3>
-        <p class="mt-2 text-sm" style="color:var(--brand-gray)">Agenda online, elige tu horario disponible y recibe confirmación al instante.</p>
+        <p class="mt-2 text-sm" style="color:var(--brand-gray)">Escríbenos por WhatsApp y coordinamos tu horario al toque.</p>
       </article>
     </div>
   </div>
@@ -234,52 +320,49 @@
 <!-- RESERVA -->
 <section id="reserva" class="py-16">
   <div class="max-w-xl mx-auto px-4">
-    <p class="kicker text-center">Reserva online</p>
+    <p class="kicker text-center">Reserva por WhatsApp</p>
     <h2 class="text-2xl md:text-4xl mt-2 text-center">Agenda tu cita</h2>
-    <p class="mt-3 text-center" style="color:var(--brand-gray)">Elige servicio, fecha y hora disponible. Tu cita queda confirmada al instante.</p>
+    <p class="mt-3 text-center" style="color:var(--brand-gray)">Completa el formulario y se abre WhatsApp con tu mensaje ya armado, listo para enviar.</p>
 
     <form id="booking-form" class="mt-8 grid gap-4" novalidate>
       <div>
-        <label for="service">Servicio</label>
-        <select id="service" name="service" class="field" required>
-          <option value="">Cargando servicios…</option>
+        <label for="service" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Servicio</label>
+        <select id="service" name="service" required class="w-full border rounded-lg px-4 py-3" style="border-color:#E4DDD0">
+          <option value="">Elige un servicio</option>
+          <option value="Corte clásico (S/ 25)">Corte clásico — S/ 25</option>
+          <option value="Corte degradado (S/ 30)">Corte degradado — S/ 30</option>
+          <option value="Corte a tijera (S/ 30)">Corte a tijera — S/ 30</option>
+          <option value="Perfilado de barba (S/ 15)">Perfilado de barba — S/ 15</option>
+          <option value="Limpieza facial (S/ 50)">Limpieza facial — S/ 50</option>
+          <option value="Ondulación (S/ 100)">Ondulación — S/ 100</option>
+          <option value="Tinte (desde S/ 150)">Tinte — desde S/ 150</option>
         </select>
       </div>
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label for="date">Fecha</label>
-          <input type="date" id="date" name="date" class="field" required>
-        </div>
-        <div>
-          <label for="time">Hora</label>
-          <select id="time" name="time" class="field" required disabled>
-            <option value="">Elige una fecha</option>
-          </select>
-        </div>
-      </div>
       <div>
-        <label for="name">Nombre completo</label>
-        <input type="text" id="name" name="name" class="field" required autocomplete="name">
+        <label for="name" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Nombre completo</label>
+        <input type="text" id="name" name="name" required autocomplete="name" class="w-full border rounded-lg px-4 py-3" style="border-color:#E4DDD0">
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label for="phone">Teléfono / WhatsApp</label>
-          <input type="tel" id="phone" name="phone" class="field" required autocomplete="tel">
+          <label for="phone" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Tu teléfono</label>
+          <input type="tel" id="phone" name="phone" required autocomplete="tel" class="w-full border rounded-lg px-4 py-3" style="border-color:#E4DDD0">
         </div>
         <div>
-          <label for="email">Correo (opcional)</label>
-          <input type="email" id="email" name="email" class="field" autocomplete="email">
+          <label for="date" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Fecha preferida</label>
+          <input type="date" id="date" name="date" class="w-full border rounded-lg px-4 py-3" style="border-color:#E4DDD0">
         </div>
       </div>
       <div>
-        <label for="notes">Notas (opcional)</label>
-        <textarea id="notes" name="notes" rows="3" class="field"></textarea>
+        <label for="notes" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Notas (opcional)</label>
+        <textarea id="notes" name="notes" rows="3" class="w-full border rounded-lg px-4 py-3" style="border-color:#E4DDD0"></textarea>
       </div>
-      <!-- Honeypot anti-spam -->
-      <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" style="display:none" aria-hidden="true">
-      <button type="submit" id="submit-btn" class="btn-primary w-full">Confirmar reserva →</button>
-      <p id="form-message" class="text-sm text-center" role="status" aria-live="polite"></p>
+      <button type="submit" class="btn-whatsapp w-full justify-center">
+        <svg viewBox="0 0 32 32" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.2 1.7 6L4 29l8.2-1.6c1.7.9 3.7 1.4 5.8 1.4 6.6 0 12-5.4 12-12S22.6 3 16 3zm6.6 16.9c-.3.8-1.6 1.5-2.2 1.6-.6.1-1.3.2-3.7-.8-3.1-1.3-5.1-4.5-5.3-4.7-.2-.2-1.3-1.7-1.3-3.2s.8-2.3 1.1-2.6c.3-.3.6-.4.8-.4h.6c.2 0 .5-.1.7.5l1 2.4c.1.2.1.4 0 .6l-.4.7-.6.6c-.2.2-.4.4-.2.8.2.4 1 1.6 2.1 2.6 1.4 1.3 2.6 1.7 3 1.9.4.2.6.1.8-.1l1.2-1.4c.2-.3.5-.2.8-.1l2.4 1.1c.3.2.6.3.7.5.1.1.1.8-.2 1.5z"/></svg>
+        Enviar por WhatsApp →
+      </button>
+      <p id="form-message" class="text-sm text-center" style="color:#B3261E" role="status" aria-live="polite"></p>
     </form>
+    <p class="mt-4 text-sm text-center" style="color:var(--brand-gray)">📱 +51 910 085 081</p>
   </div>
 </section>
 
@@ -310,11 +393,11 @@
   <div class="max-w-3xl mx-auto px-4">
     <h2 class="text-2xl md:text-4xl">Preguntas frecuentes</h2>
     <div class="mt-8 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-      <details class="faq"><summary>¿Cómo reservo una cita en Kápital Studio?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Reservas directamente en esta página: eliges servicio, fecha y hora disponible, dejas tus datos y recibes confirmación al instante. Tu cita queda agendada automáticamente en nuestro calendario.</p></details>
+      <details class="faq"><summary>¿Cómo reservo una cita en Kápital Studio?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Escríbenos por WhatsApp al +51 910 085 081 indicando el servicio que quieres, y coordinamos el horario contigo.</p></details>
       <details class="faq"><summary>¿Cuál es el horario de atención?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Atendemos todos los días de 10:00 a. m. a 9:00 p. m.</p></details>
       <details class="faq"><summary>¿Dónde están ubicados?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Estamos en Av. Las Palmeras #5194, Los Olivos, Lima.</p></details>
-      <details class="faq"><summary>¿Qué servicios ofrecen?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Puedes ver el listado actualizado de servicios y precios en la sección de <a href="#servicios" style="color:var(--brand-accent);font-weight:700">Servicios</a> de esta página, y elegir el que buscas directamente al reservar tu cita.</p></details>
-      <details class="faq"><summary>¿Necesito reservar con anticipación?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Te recomendamos reservar con anticipación: el formulario solo muestra los horarios realmente disponibles ese día, así evitas cruces de horario.</p></details>
+      <details class="faq"><summary>¿Qué servicios ofrecen?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Corte clásico, corte degradado, corte a tijera, perfilado de barba, limpieza facial, ondulación y tinte. Puedes ver los precios en la sección de <a href="#servicios" style="color:var(--brand-accent);font-weight:700">Servicios</a>.</p></details>
+      <details class="faq"><summary>¿Necesito reservar con anticipación?</summary><p class="mt-2 text-sm" style="color:var(--brand-gray)">Te recomendamos escribirnos por WhatsApp con anticipación para asegurar el horario que prefieras.</p></details>
     </div>
   </div>
 </section>
@@ -324,7 +407,10 @@
   <div class="max-w-3xl mx-auto px-4">
     <h2 class="text-2xl md:text-3xl">¿Listo para tu cambio de look?</h2>
     <div class="mt-6 flex justify-center gap-4 flex-wrap">
-      <a href="#reserva" class="btn-primary">Reservar cita</a>
+      <a href="https://wa.me/51910085081?text=Hola%20K%C3%A1pital%20Studio%2C%20quiero%20reservar%20una%20cita." class="btn-whatsapp" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 32 32" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.2 1.7 6L4 29l8.2-1.6c1.7.9 3.7 1.4 5.8 1.4 6.6 0 12-5.4 12-12S22.6 3 16 3zm6.6 16.9c-.3.8-1.6 1.5-2.2 1.6-.6.1-1.3.2-3.7-.8-3.1-1.3-5.1-4.5-5.3-4.7-.2-.2-1.3-1.7-1.3-3.2s.8-2.3 1.1-2.6c.3-.3.6-.4.8-.4h.6c.2 0 .5-.1.7.5l1 2.4c.1.2.1.4 0 .6l-.4.7-.6.6c-.2.2-.4.4-.2.8.2.4 1 1.6 2.1 2.6 1.4 1.3 2.6 1.7 3 1.9.4.2.6.1.8-.1l1.2-1.4c.2-.3.5-.2.8-.1l2.4 1.1c.3.2.6.3.7.5.1.1.1.8-.2 1.5z"/></svg>
+        Reservar por WhatsApp
+      </a>
       <a href="#ubicacion" class="btn-outline" style="color:#F4EFE7">Ver ubicación</a>
     </div>
   </div>
@@ -345,7 +431,7 @@
     </ul></div>
     <div><p class="font-bold mb-2">CONTACTO</p><ul class="space-y-1 text-white/80">
       <li>Av. Las Palmeras #5194, Los Olivos, Lima</li>
-      <li><a href="#reserva">Reservar cita online</a></li>
+      <li><a href="https://wa.me/51910085081" target="_blank" rel="noopener noreferrer">+51 910 085 081</a></li>
     </ul>
       <p class="mt-2 text-white/60 text-xs">RUC: (pendiente de confirmar)</p></div>
   </div>
@@ -353,258 +439,71 @@
   <p class="text-center text-xs text-white/60 mt-8">© 2026 Kápital Studio. Todos los derechos reservados.</p>
 </footer>
 
-<!-- Botón flotante de reserva -->
-<a href="#reserva" class="reserve-float" aria-label="Ir a reservar cita">📅 Reservar</a>
+<!-- Botón flotante de WhatsApp -->
+<a href="https://wa.me/51910085081?text=Hola%20K%C3%A1pital%20Studio%2C%20quiero%20reservar%20una%20cita." class="reserve-float" aria-label="Reservar por WhatsApp" target="_blank" rel="noopener noreferrer">
+  <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.2 1.7 6L4 29l8.2-1.6c1.7.9 3.7 1.4 5.8 1.4 6.6 0 12-5.4 12-12S22.6 3 16 3zm6.6 16.9c-.3.8-1.6 1.5-2.2 1.6-.6.1-1.3.2-3.7-.8-3.1-1.3-5.1-4.5-5.3-4.7-.2-.2-1.3-1.7-1.3-3.2s.8-2.3 1.1-2.6c.3-.3.6-.4.8-.4h.6c.2 0 .5-.1.7.5l1 2.4c.1.2.1.4 0 .6l-.4.7-.6.6c-.2.2-.4.4-.2.8.2.4 1 1.6 2.1 2.6 1.4 1.3 2.6 1.7 3 1.9.4.2.6.1.8-.1l1.2-1.4c.2-.3.5-.2.8-.1l2.4 1.1c.3.2.6.3.7.5.1.1.1.8-.2 1.5z"/></svg>
+  Reservar
+</a>
 
 <script>
 (function(){
-  var serviceSelect = document.getElementById('service');
-  var dateInput = document.getElementById('date');
-  var timeSelect = document.getElementById('time');
-  var form = document.getElementById('booking-form');
-  var submitBtn = document.getElementById('submit-btn');
-  var messageEl = document.getElementById('form-message');
-
-  var today = new Date();
-  var isoToday = today.toISOString().slice(0, 10);
-  dateInput.min = isoToday;
-
-  function setMessage(text, isError){
-    messageEl.textContent = text || '';
-    messageEl.style.color = isError ? '#B3261E' : 'var(--brand-gray)';
-  }
-
-  function escapeHtml(str){
-    var div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  function formatPrice(s){
-    if(s.price === null || s.price === undefined) return '';
-    var value = 'S/ ' + Number(s.price).toFixed(Number(s.price) % 1 === 0 ? 0 : 2);
-    return s.priceIsFrom ? 'Desde ' + value : value;
-  }
-
-  // Iconos genéricos por tipo de servicio (no son fotos reales del local; sirven
-  // de imagen ilustrativa mientras no haya fotografías propias). Si el nombre no
-  // coincide con ninguna palabra clave, se usa el ícono de tijeras por defecto.
-  var SERVICE_ICONS = [
-    { test: /barba/i, svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="4" rx="1.2"/><path d="M6.5 10V7.3A2.3 2.3 0 0 1 8.8 5h6.4a2.3 2.3 0 0 1 2.3 2.3V10"/></svg>' },
-    { test: /facial|piel/i, svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c4.2 2 7 6.2 7 10.2A7 7 0 0 1 5 13.2C5 9.2 7.8 5 12 3Z"/><path d="M12 8.5v9"/></svg>' },
-    { test: /ondul|permanent/i, svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8c2-3 4-3 6 0s4 3 6 0 4-3 6.5 0"/><path d="M2.5 15.5c2-3 4-3 6 0s4 3 6 0 4-3 6.5 0"/></svg>' },
-    { test: /tinte|color/i, svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6.2 7.2 6.2 11.3A6.2 6.2 0 0 1 5.8 14.3C5.8 10.2 12 3 12 3Z"/></svg>' },
-    { test: /corte|tijera|degradad|fade/i, svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.2" cy="6" r="2.4"/><circle cx="6.2" cy="18" r="2.4"/><line x1="8.3" y1="7.4" x2="20" y2="19"/><line x1="8.3" y1="16.6" x2="20" y2="5"/></svg>' }
-  ];
-  var DEFAULT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.2" cy="6" r="2.4"/><circle cx="6.2" cy="18" r="2.4"/><line x1="8.3" y1="7.4" x2="20" y2="19"/><line x1="8.3" y1="16.6" x2="20" y2="5"/></svg>';
-
-  function iconFor(service){
-    for(var i=0;i<SERVICE_ICONS.length;i++){
-      if(SERVICE_ICONS[i].test.test(service.name)) return SERVICE_ICONS[i].svg;
-    }
-    return DEFAULT_ICON;
-  }
-
-  function priceMarkup(s){
-    var price = formatPrice(s);
-    if(!price) return '';
-    var note = s.priceIsFrom ? 'Desde' : 'Precio';
-    var value = s.priceIsFrom ? price.replace(/^Desde\s*/, '') : price;
-    return '<div class="text-right"><span class="service-price-note">' + note + '</span>' +
-      '<span class="service-price">' + escapeHtml(value) + '</span></div>';
-  }
-
-  function renderFeaturedCard(s){
-    var description = s.description ? escapeHtml(s.description) : ('Duración aproximada: ' + s.duration + ' min.');
-    return '<article class="service-card">' +
-      '<div class="service-visual" aria-hidden="true">' + iconFor(s) + '</div>' +
-      '<div class="service-body">' +
-        '<h3 class="font-extrabold">' + escapeHtml(s.name) + '</h3>' +
-        '<p class="service-desc">' + description + ' · ⏱ ' + s.duration + ' min</p>' +
-        '<div class="service-price-row">' +
-          '<a href="#reserva" class="font-bold text-sm" style="color:var(--brand-accent)" data-preselect="' + escapeHtml(s.id) + '">RESERVAR →</a>' +
-          priceMarkup(s) +
-        '</div>' +
-      '</div>' +
-    '</article>';
-  }
-
-  function renderCarouselCard(s){
-    var price = formatPrice(s);
-    return '<article class="carousel-card">' +
-      '<div class="carousel-visual" aria-hidden="true">' + iconFor(s) + '</div>' +
-      '<div class="carousel-body">' +
-        '<h4>' + escapeHtml(s.name) + '</h4>' +
-        (price ? '<p class="carousel-price">' + escapeHtml(price) + '</p>' : '') +
-        '<p class="text-xs mt-1" style="color:var(--brand-gray)">⏱ ' + s.duration + ' min</p>' +
-        '<a href="#reserva" class="inline-block mt-2 font-bold text-xs" style="color:var(--brand-accent)" data-preselect="' + escapeHtml(s.id) + '">RESERVAR →</a>' +
-      '</div>' +
-    '</article>';
-  }
-
-  function renderServiceCards(services){
-    var countEl = document.getElementById('services-count');
-    if(countEl) countEl.textContent = services.length;
-
-    var featuredEl = document.getElementById('servicios-featured');
-    var masSection = document.getElementById('servicios-mas');
-    var carouselEl = document.getElementById('servicios-carousel');
-
-    if(services.length === 0){
-      featuredEl.innerHTML = '<p style="color:var(--brand-gray)">Aún no hay servicios publicados. Vuelve pronto.</p>';
-      masSection.classList.add('hidden');
-      return;
-    }
-
-    // Los primeros 3 (según el orden definido en el panel admin) van destacados;
-    // el resto se muestra en un carrusel ordenado de menor a mayor precio.
-    var featured = services.slice(0, 3);
-    var rest = services.slice(3).slice().sort(function(a, b){
-      var pa = a.price === null || a.price === undefined ? Infinity : Number(a.price);
-      var pb = b.price === null || b.price === undefined ? Infinity : Number(b.price);
-      return pa - pb;
-    });
-
-    featuredEl.innerHTML = featured.map(renderFeaturedCard).join('');
-
-    if(rest.length === 0){
-      masSection.classList.add('hidden');
-      carouselEl.innerHTML = '';
-    } else {
-      masSection.classList.remove('hidden');
-      carouselEl.innerHTML = rest.map(renderCarouselCard).join('');
-    }
-  }
-
-  function loadServices(){
-    return fetch('/api/services')
-      .then(function(r){ if(!r.ok) throw new Error('services'); return r.json(); })
-      .then(function(services){
-        serviceSelect.innerHTML = '<option value="">Elige un servicio</option>';
-        services.forEach(function(s){
-          var opt = document.createElement('option');
-          opt.value = s.id;
-          var price = formatPrice(s);
-          opt.textContent = s.name + (price ? ' — ' + price : '') + ' (' + s.duration + ' min)';
-          serviceSelect.appendChild(opt);
-        });
-        renderServiceCards(services);
-      })
-      .catch(function(){
-        setMessage('No se pudo cargar la lista de servicios. Intenta recargar la página.', true);
-        document.getElementById('servicios-featured').innerHTML = '<p style="color:var(--brand-gray)">No se pudo cargar la lista de servicios.</p>';
-      });
-  }
-
-  function loadAvailability(){
-    var date = dateInput.value;
-    var service = serviceSelect.value;
-    if(!date || !service){
-      timeSelect.innerHTML = '<option value="">Elige servicio y fecha</option>';
-      timeSelect.disabled = true;
-      return;
-    }
-    timeSelect.disabled = true;
-    timeSelect.innerHTML = '<option value="">Buscando horarios…</option>';
-    fetch('/api/availability?date=' + encodeURIComponent(date) + '&service=' + encodeURIComponent(service))
-      .then(function(r){ if(!r.ok) throw new Error('availability'); return r.json(); })
-      .then(function(data){
-        var slots = data.slots || [];
-        if(slots.length === 0){
-          timeSelect.innerHTML = '<option value="">Sin horarios disponibles ese día</option>';
-          timeSelect.disabled = true;
-          return;
-        }
-        timeSelect.innerHTML = '<option value="">Elige una hora</option>';
-        slots.forEach(function(t){
-          var opt = document.createElement('option');
-          opt.value = t; opt.textContent = t;
-          timeSelect.appendChild(opt);
-        });
-        timeSelect.disabled = false;
-      })
-      .catch(function(){
-        timeSelect.innerHTML = '<option value="">No se pudo cargar</option>';
-        setMessage('No se pudo consultar la disponibilidad. Intenta de nuevo.', true);
-      });
-  }
-
-  serviceSelect.addEventListener('change', loadAvailability);
-  dateInput.addEventListener('change', loadAvailability);
-
-  function onPreselectClick(e){
-    var link = e.target.closest('[data-preselect]');
-    if(!link) return;
-    var value = link.getAttribute('data-preselect');
-    setTimeout(function(){
-      serviceSelect.value = value;
-      loadAvailability();
-    }, 300);
-  }
-  document.getElementById('servicios-featured').addEventListener('click', onPreselectClick);
-  document.getElementById('servicios-carousel').addEventListener('click', onPreselectClick);
-
-  var carouselTrack = document.getElementById('servicios-carousel');
-  var carouselPrev = document.getElementById('carousel-prev');
-  var carouselNext = document.getElementById('carousel-next');
+  var track = document.getElementById('servicios-carousel');
+  var prevBtn = document.getElementById('carousel-prev');
+  var nextBtn = document.getElementById('carousel-next');
+  if(!track || !prevBtn || !nextBtn) return;
   function scrollCarousel(dir){
-    var card = carouselTrack.querySelector('.carousel-card');
+    var card = track.querySelector('.carousel-card');
     var step = card ? card.getBoundingClientRect().width + 18 : 220;
-    carouselTrack.scrollBy({ left: dir * step * 2, behavior: 'smooth' });
+    track.scrollBy({ left: dir * step * 2, behavior: 'smooth' });
   }
-  carouselPrev.addEventListener('click', function(){ scrollCarousel(-1); });
-  carouselNext.addEventListener('click', function(){ scrollCarousel(1); });
+  prevBtn.addEventListener('click', function(){ scrollCarousel(-1); });
+  nextBtn.addEventListener('click', function(){ scrollCarousel(1); });
+})();
+
+(function(){
+  var WHATSAPP_NUMBER = '51910085081';
+  var form = document.getElementById('booking-form');
+  var messageEl = document.getElementById('form-message');
+  if(!form) return;
+
+  var dateInput = document.getElementById('date');
+  if(dateInput){
+    dateInput.min = new Date().toISOString().slice(0, 10);
+  }
+
+  function formatFecha(iso){
+    if(!iso) return '';
+    var parts = iso.split('-');
+    return parts[2] + '/' + parts[1] + '/' + parts[0];
+  }
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
-    setMessage('');
-    if(form.website.value){ return; } // honeypot
+    messageEl.textContent = '';
 
-    var payload = {
-      service: serviceSelect.value,
-      date: dateInput.value,
-      time: timeSelect.value,
-      name: form.name.value.trim(),
-      phone: form.phone.value.trim(),
-      email: form.email.value.trim(),
-      notes: form.notes.value.trim()
-    };
+    var service = form.service.value;
+    var name = form.name.value.trim();
+    var phone = form.phone.value.trim();
+    var date = form.date.value;
+    var notes = form.notes.value.trim();
 
-    if(!payload.service || !payload.date || !payload.time || !payload.name || !payload.phone){
-      setMessage('Completa servicio, fecha, hora, nombre y teléfono.', true);
+    if(!service || !name || !phone){
+      messageEl.textContent = 'Completa servicio, nombre y teléfono.';
       return;
     }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Reservando…';
+    var lines = [
+      'Hola Kápital Studio, quiero reservar una cita:',
+      'Servicio: ' + service,
+      'Nombre: ' + name,
+      'Teléfono: ' + phone
+    ];
+    if(date) lines.push('Fecha preferida: ' + formatFecha(date));
+    if(notes) lines.push('Notas: ' + notes);
 
-    fetch('/api/appointments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-      .then(function(r){ return r.json().then(function(body){ return { ok: r.ok, body: body }; }); })
-      .then(function(res){
-        if(!res.ok){
-          setMessage(res.body.error || 'No se pudo completar la reserva. Elige otro horario.', true);
-          loadAvailability();
-          return;
-        }
-        form.reset();
-        timeSelect.innerHTML = '<option value="">Elige servicio y fecha</option>';
-        timeSelect.disabled = true;
-        setMessage('¡Listo! Tu cita quedó reservada' + (res.body.calendarSynced ? ' y agendada en el calendario.' : '. Te confirmaremos por teléfono en breve.'), false);
-      })
-      .catch(function(){
-        setMessage('Error de conexión. Intenta de nuevo en unos segundos.', true);
-      })
-      .finally(function(){
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Confirmar reserva →';
-      });
+    var text = encodeURIComponent(lines.join('\n'));
+    window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + text, '_blank', 'noopener,noreferrer');
   });
-
-  loadServices();
 })();
 </script>
 </body>
