@@ -1,17 +1,19 @@
 name = "kapital-studio"
+main = "src/index.js"
 compatibility_date = "2024-09-23"
-pages_build_output_dir = "public"
 
-# Este archivo SÍ debe estar en el repositorio: Cloudflare Pages detecta que
-# `package.json` depende de `wrangler` y usa un build basado en Wrangler para
-# este proyecto. Sin `pages_build_output_dir` aquí, Wrangler no tiene forma de
-# saber que esto es un proyecto Pages (y no un Worker), y el deploy falla con
-# "It looks like you've run a Workers-specific command in a Pages project."
-#
-# El binding de D1 para el sitio YA DESPLEGADO se configura por separado, en
-# el dashboard de Cloudflare Pages → Settings → Functions → D1 database
-# bindings (variable "DB"). No hace falta declarar la base D1 aquí para que
-# el sitio en producción funcione.
+# Cloudflare sirve los archivos de public/ directo (asset-first routing):
+# si una URL coincide con un archivo ahí, ni siquiera se invoca el Worker.
+# El Worker (src/index.js) solo entra a tallar en rutas que no coinciden con
+# ningún archivo estático — en la práctica, /api/*.
+[assets]
+directory = "public"
+binding = "ASSETS"
+
+# El binding de D1 para el sitio YA DESPLEGADO se configura en el dashboard
+# de Cloudflare → tu proyecto (Workers & Pages) → Settings → Bindings →
+# Add → D1 Database → variable "DB" → tu base existente. No hace falta
+# declarar la base D1 aquí para que el sitio en producción funcione.
 #
 # Para DESARROLLO LOCAL con una base D1 (opcional, ver README → "Desarrollo
 # local"), descomenta este bloque y pon los datos de tu base real (no son

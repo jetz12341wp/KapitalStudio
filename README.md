@@ -1,48 +1,35 @@
-# Kápital Studio — sitio + reservas (Cloudflare Pages)
+# Kápital Studio — sitio + reservas (Cloudflare Worker)
 
-Sitio web y sistema de reservas propio de Kápital Studio (Av. Las Palmeras #5194, Los Olivos), desplegado en **Cloudflare Pages**.
+Sitio web y sistema de reservas propio de Kápital Studio (Av. Las Palmeras #5194, Los Olivos), desplegado como un **Cloudflare Worker con assets estáticos**.
 
-- `public/` — front-end estático (HTML + Tailwind CDN, sin build). Cloudflare lo sirve directo.
-- `functions/` — backend como **Cloudflare Pages Functions** (runtime de Workers): cada archivo bajo `functions/api/` es una ruta de API.
+- `public/` — front-end estático (HTML + Tailwind CDN, sin build). Cloudflare lo sirve directo: si una URL coincide con un archivo ahí, el Worker ni se invoca.
+- `src/index.js` — el Worker: atiende únicamente las rutas `/api/*` (todo lo demás lo sirve el binding de assets automáticamente).
+- `src/lib/` — la lógica compartida (disponibilidad, validaciones, acceso a D1, Google Calendar), en funciones JS puras.
 - `migrations/` — esquema SQL para la base de datos **Cloudflare D1** (SQLite serverless) donde se guardan servicios y citas.
 
-No hay servidor Node tradicional: todo corre en el runtime de Cloudflare (front + API), en el mismo dominio.
+No hay servidor Node tradicional ni Cloudflare Pages: es un único Worker (`wrangler deploy`), que es exactamente el comando que Cloudflare ya corre para este proyecto — por eso esta arquitectura, y no Pages Functions, es la que evita el error *"Workers-specific command in a Pages project"* sin tener que tocar ningún ajuste en el dashboard.
 
 ## Cómo está armado
 
 ```
-public/            → se publica tal cual (Build output directory = public)
-functions/api/services.js               → GET  /api/services
-functions/api/availability.js           → GET  /api/availability
-functions/api/appointments.js           → GET  /api/appointments (admin) · POST /api/appointments
-functions/api/admin/services.js         → GET  /api/admin/services (admin) · POST (admin)
-functions/api/admin/services/[id].js    → PUT / DELETE /api/admin/services/:id (admin)
-functions/_lib/                         → código compartido (no son rutas; el "_" al inicio hace que Cloudflare las ignore como ruta)
+public/            → binding de assets (wrangler.toml → [assets] directory = "public")
+src/index.js        → Worker: enruta manualmente GET/POST/PUT/DELETE bajo /api/*
+src/lib/             → lógica compartida, sin dependencia del framework
 ```
 
-## 0. Si el deploy falla con "Workers-specific command in a Pages project"
+Rutas que atiende el Worker:
 
-Este error **no se arregla desde el código del repositorio** — es una configuración del proyecto en el dashboard de Cloudflare. Pasa cuando el **"Deploy command"** del proyecto está puesto como `npx wrangler deploy` (el comando de un Worker) en vez de `npx wrangler pages deploy public` (el de Pages).
-
-Corrígelo así:
-
-1. Dashboard de Cloudflare → **Workers & Pages** → tu proyecto → **Settings** → busca la sección de build (puede llamarse **"Builds"**, **"Build configuration"** o similar).
-2. Busca el campo **"Deploy command"** (o "Comando de deploy"). Si dice `npx wrangler deploy` (o `wrangler deploy`), cámbialo por:
-   ```
-   npx wrangler pages deploy public
-   ```
-3. Verifica también el **"Build command"** — para este proyecto puede quedar vacío (no hay paso de compilación; `public/` ya está listo tal cual).
-4. Guarda y vuelve a desplegar (un nuevo commit, o "Retry deployment" desde el dashboard).
-
-Si no encuentras esos campos o el proyecto no te deja editarlos, es probable que se haya creado como tipo **"Worker"** en vez de **"Pages"** en el flujo unificado de Cloudflare — en ese caso lo más simple es crear un proyecto nuevo desde **Workers & Pages → Create → Pages → Connect to Git**, eligiendo este mismo repositorio, y usar ese proyecto nuevo en vez del actual (con Build output directory = `public`, sin Deploy command).
-
-`wrangler.toml` **sí está incluido en este repositorio** (no lo borres): tiene `pages_build_output_dir = "public"`, que es lo que le dice a Wrangler que esto es un proyecto Pages y no un Worker. Sin ese archivo, el error es todavía más probable.
+- `GET  /api/services`
+- `GET  /api/availability`
+- `GET  /api/appointments` (admin) · `POST /api/appointments`
+- `GET  /api/admin/services` (admin) · `POST /api/admin/services` (admin)
+- `PUT  /api/admin/services/:id` (admin) · `DELETE /api/admin/services/:id` (admin)
 
 ## 1. Base de datos D1
 
-Ya tienes una base D1 creada. Falta:
+Ya tienes una base D1 creada. Falta enlazarla al Worker:
 
-1. **Enlazarla al proyecto Pages**: en el dashboard de Cloudflare → tu proyecto Pages → **Settings → Functions → D1 database bindings** → agrega un binding con:
+1. Dashboard de Cloudflare → **Workers & Pages** → tu proyecto (el Worker) → **Settings → Bindings** (o "Variables and Secrets", según la versión del dashboard) → **Add binding → D1 database**:
    - Variable name: **`DB`** (exactamente así, en mayúsculas; el código lo espera con ese nombre)
    - D1 database: tu base existente
 2. **Aplicar el esquema** (crea las tablas y siembra los 7 servicios reales). La forma más simple, sin instalar nada: dashboard de Cloudflare → **D1** → tu base → pestaña **Console** → pega y corre el contenido de `migrations/0001_init.sql`, luego el de `migrations/0002_seed_services.sql`.
@@ -57,9 +44,9 @@ Ya tienes una base D1 creada. Falta:
    Reemplaza `TU-BASE-D1` por el nombre real de tu base (lo ves en el dashboard o con `npx wrangler d1 list`).
 3. Los scripts `npm run d1:migrate:remote` / `npm run d1:migrate:local` en `package.json` hacen lo mismo, pero tienen hardcodeado el nombre `kapital-studio-db` — edítalos con el nombre real de tu base antes de usarlos.
 
-## 2. Variables de entorno del proyecto Pages
+## 2. Variables de entorno del Worker
 
-En el dashboard → tu proyecto Pages → **Settings → Environment variables**, agrega (como variable normal o "Secret" para las sensibles):
+En el dashboard → tu Worker → **Settings → Variables and Secrets**, agrega:
 
 | Variable | Obligatoria | Descripción |
 |---|---|---|
@@ -83,12 +70,12 @@ Se usa un **Service Account** de Google Cloud (server-to-server, sin que nadie t
 4. Copia el email de la cuenta de servicio (`algo@proyecto.iam.gserviceaccount.com`).
 5. En [Google Calendar](https://calendar.google.com/), abre el calendario que vas a usar → "Configuración y uso compartido" → "Compartir con determinadas personas" → agrega el email del service account con permiso **"Realizar cambios en los eventos"**.
 6. Copia el **ID de calendario** ("Integrar el calendario" → "ID de calendario").
-7. Pega ese ID en `GOOGLE_CALENDAR_ID`, y el contenido del JSON descargado (una sola línea) en `GOOGLE_SERVICE_ACCOUNT_JSON`, como variables/secrets del proyecto Pages (paso 2).
+7. Pega ese ID en `GOOGLE_CALENDAR_ID`, y el contenido del JSON descargado (una sola línea) en `GOOGLE_SERVICE_ACCOUNT_JSON`, como variables/secrets del Worker (paso 2).
 8. Re-despliega. Al reservar, la respuesta debe traer `calendarSynced: true` y el evento debe aparecer en el calendario.
 
 ## 4. Administrar los servicios (sin tocar código)
 
-Los servicios que aparecen en el formulario **no están escritos en el código**: viven en D1 y se administran desde `https://tu-sitio.pages.dev/admin.html` (o tu dominio propio si lo conectaste).
+Los servicios que aparecen en el formulario **no están escritos en el código**: viven en D1 y se administran desde `https://tu-worker.workers.dev/admin.html` (o tu dominio propio si lo conectaste).
 
 1. Abre `/admin.html` e ingresa el `ADMIN_TOKEN` que pusiste en el paso 2.
 2. Ahí puedes **agregar** servicios (nombre, descripción, duración, precio), **desactivar** los que ya no ofreces y **eliminar** los que nunca tuvieron citas (si tienen citas asociadas, se desactivan en vez de borrarse, para no romper el historial).
@@ -113,7 +100,15 @@ Sin tocar nada más, `npm run dev` levanta el sitio pero las rutas `/api/*` fall
    ```bash
    npm run dev
    ```
-   Abre `http://localhost:8788` — ahora `/api/*` sí responde, usando la misma base local que acabas de migrar (Wrangler la resuelve por el bloque `[[d1_databases]]` de `wrangler.toml`, así que migraciones y `dev` comparten los mismos datos).
+   Abre la URL que muestre la terminal (por defecto `http://localhost:8787`) — ahora `/api/*` sí responde, usando la misma base local que acabas de migrar.
+
+Para probar exactamente el comando que corre Cloudflare al desplegar (sin publicar nada de verdad):
+
+```bash
+npx wrangler deploy --dry-run
+```
+
+Si eso termina sin errores mostrando el binding `env.ASSETS`, el deploy real también debería funcionar.
 
 ## API
 
@@ -130,7 +125,7 @@ Sin tocar nada más, `npm run dev` levanta el sitio pero las rutas `/api/*` fall
 
 - Todos los días: 10:00 a. m. – 9:00 p. m.
 
-Se puede ajustar en `functions/_lib/config.js` (`BUSINESS_HOURS`). La duración y el precio de cada servicio se administran desde `/admin.html`.
+Se puede ajustar en `src/lib/config.js` (`BUSINESS_HOURS`). La duración y el precio de cada servicio se administran desde `/admin.html`.
 
 ## Logo
 
@@ -138,8 +133,8 @@ El header y el hero de `public/index.html` recrean el logo de Kápital Studio (a
 
 ## Pendiente antes de publicar
 
-- Enlazar la base D1 al proyecto Pages y aplicar las migraciones (paso 1 arriba) — sin esto, el sitio carga pero ningún servicio ni reserva funciona.
-- Configurar `ADMIN_TOKEN` como variable de entorno del proyecto (paso 2) — sin esto, `/admin.html` nunca podrá entrar.
+- Enlazar la base D1 al Worker y aplicar las migraciones (paso 1 arriba) — sin esto, el sitio carga pero ningún servicio ni reserva funciona.
+- Configurar `ADMIN_TOKEN` como variable de entorno del Worker (paso 2) — sin esto, `/admin.html` nunca podrá entrar.
 - Dominio propio (hoy el `<link rel="canonical">` de `public/index.html` y el correo de `libro-de-reclamaciones.html` usan `TU-DOMINIO-AQUI.pe` como placeholder).
 - Logo real como archivo de imagen (ver sección "Logo" arriba), si no quieres quedarte con la recreación tipográfica.
 - RUC / razón social en el footer.
