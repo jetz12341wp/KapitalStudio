@@ -20,45 +20,42 @@ functions/api/admin/services/[id].js    → PUT / DELETE /api/admin/services/:id
 functions/_lib/                         → código compartido (no son rutas; el "_" al inicio hace que Cloudflare las ignore como ruta)
 ```
 
+## 0. Si el deploy falla con "Workers-specific command in a Pages project"
+
+Este error **no se arregla desde el código del repositorio** — es una configuración del proyecto en el dashboard de Cloudflare. Pasa cuando el **"Deploy command"** del proyecto está puesto como `npx wrangler deploy` (el comando de un Worker) en vez de `npx wrangler pages deploy public` (el de Pages).
+
+Corrígelo así:
+
+1. Dashboard de Cloudflare → **Workers & Pages** → tu proyecto → **Settings** → busca la sección de build (puede llamarse **"Builds"**, **"Build configuration"** o similar).
+2. Busca el campo **"Deploy command"** (o "Comando de deploy"). Si dice `npx wrangler deploy` (o `wrangler deploy`), cámbialo por:
+   ```
+   npx wrangler pages deploy public
+   ```
+3. Verifica también el **"Build command"** — para este proyecto puede quedar vacío (no hay paso de compilación; `public/` ya está listo tal cual).
+4. Guarda y vuelve a desplegar (un nuevo commit, o "Retry deployment" desde el dashboard).
+
+Si no encuentras esos campos o el proyecto no te deja editarlos, es probable que se haya creado como tipo **"Worker"** en vez de **"Pages"** en el flujo unificado de Cloudflare — en ese caso lo más simple es crear un proyecto nuevo desde **Workers & Pages → Create → Pages → Connect to Git**, eligiendo este mismo repositorio, y usar ese proyecto nuevo en vez del actual (con Build output directory = `public`, sin Deploy command).
+
+`wrangler.toml` **sí está incluido en este repositorio** (no lo borres): tiene `pages_build_output_dir = "public"`, que es lo que le dice a Wrangler que esto es un proyecto Pages y no un Worker. Sin ese archivo, el error es todavía más probable.
+
 ## 1. Base de datos D1
 
 Ya tienes una base D1 creada. Falta:
 
-1. **Enlazarla al proyecto Pages** (si no lo hiciste aún): en el dashboard de Cloudflare → tu proyecto Pages → **Settings → Functions → D1 database bindings** → agrega un binding con:
+1. **Enlazarla al proyecto Pages**: en el dashboard de Cloudflare → tu proyecto Pages → **Settings → Functions → D1 database bindings** → agrega un binding con:
    - Variable name: **`DB`** (exactamente así, en mayúsculas; el código lo espera con ese nombre)
    - D1 database: tu base existente
-2. **Aplicar el esquema** (crea las tablas y siembra los 7 servicios reales). Los comandos de Wrangler necesitan un `wrangler.toml` local para saber a qué base referirse — **este archivo no se sube al repositorio** (ver el aviso importante más abajo), así que créalo tú mismo, una sola vez, en la raíz del proyecto:
+2. **Aplicar el esquema** (crea las tablas y siembra los 7 servicios reales). La forma más simple, sin instalar nada: dashboard de Cloudflare → **D1** → tu base → pestaña **Console** → pega y corre el contenido de `migrations/0001_init.sql`, luego el de `migrations/0002_seed_services.sql`.
 
+   Si prefieres la línea de comandos:
    ```bash
    npm install
    npx wrangler login
-   npx wrangler d1 list          # copia el "database_id" de tu base
-   ```
-
-   Crea un archivo `wrangler.toml` (en la raíz, junto a `package.json`) con:
-
-   ```toml
-   name = "kapital-studio"
-   compatibility_date = "2024-09-23"
-   pages_build_output_dir = "public"
-
-   [[d1_databases]]
-   binding = "DB"
-   database_name = "TU-BASE-D1"
-   database_id = "EL-DATABASE-ID-QUE-COPIASTE"
-   ```
-
-   Y aplica el esquema:
-
-   ```bash
    npx wrangler d1 execute TU-BASE-D1 --remote --file=./migrations/0001_init.sql
    npx wrangler d1 execute TU-BASE-D1 --remote --file=./migrations/0002_seed_services.sql
    ```
-
-   Alternativa sin instalar nada: el dashboard de Cloudflare (D1 → tu base → **Console**) permite pegar y correr el SQL de ambos archivos directamente, sin Wrangler ni `wrangler.toml`.
-3. Los scripts `npm run d1:migrate:remote` / `npm run d1:migrate:local` en `package.json` hacen lo mismo que el paso 2, pero tienen hardcodeado el nombre `kapital-studio-db` — edítalos con el nombre real de tu base antes de usarlos (siguen necesitando el `wrangler.toml` local del paso 2).
-
-> **Muy importante:** ese `wrangler.toml` que acabas de crear **nunca debe subirse al repositorio** (ya está en `.gitignore`, no lo fuerces con `git add -f`). El proyecto ya está conectado a Cloudflare Pages por GitHub, y si ese archivo llega a existir en el repo, el sistema de build de Cloudflare a veces lo interpreta como un proyecto de **Workers** en vez de **Pages**, y el despliegue automático falla con el error *"It looks like you've run a Workers-specific command in a Pages project"*. El binding de D1 para el sitio ya desplegado se configura **solo desde el dashboard** (paso 1 arriba) — el `wrangler.toml` es exclusivamente para que tú, desde tu computadora, puedas correr comandos de Wrangler (migraciones, `wrangler pages dev`).
+   Reemplaza `TU-BASE-D1` por el nombre real de tu base (lo ves en el dashboard o con `npx wrangler d1 list`).
+3. Los scripts `npm run d1:migrate:remote` / `npm run d1:migrate:local` en `package.json` hacen lo mismo, pero tienen hardcodeado el nombre `kapital-studio-db` — edítalos con el nombre real de tu base antes de usarlos.
 
 ## 2. Variables de entorno del proyecto Pages
 
@@ -103,16 +100,20 @@ La migración `0002_seed_services.sql` ya sembró los 7 servicios reales de Káp
 
 ## Desarrollo local
 
-Con el `wrangler.toml` local ya creado (sección 1, paso 2):
+Sin tocar nada más, `npm run dev` levanta el sitio pero las rutas `/api/*` fallan (no hay ninguna base D1 enlazada — es el comportamiento esperado sin configurar nada). Para tener D1 funcionando en local:
 
-```bash
-npm install
-npx wrangler d1 execute TU-BASE-D1 --local --file=./migrations/0001_init.sql
-npx wrangler d1 execute TU-BASE-D1 --local --file=./migrations/0002_seed_services.sql
-npm run dev
-```
-
-Esto levanta `public/` + `functions/` con Wrangler en `http://localhost:8788`, usando una base D1 **local** (un SQLite en disco dentro de `.wrangler/`, separado de tu base de producción — el flag `--local` es justamente para no tocar los datos reales mientras pruebas).
+1. Descomenta el bloque `[[d1_databases]]` al final de `wrangler.toml` y pon el nombre y `database_id` de tu base real (los ves en el dashboard o con `npx wrangler d1 list`; para solo probar en local, cualquier texto sirve como `database_id`, no hace falta que sea el real). No son datos sensibles — está bien dejarlos en el repo.
+2. Carga el esquema y los servicios de ejemplo a la base **local** (un SQLite separado en `.wrangler/`, no toca tu base de producción):
+   ```bash
+   npm install
+   npx wrangler d1 execute TU-BASE-D1 --local --file=./migrations/0001_init.sql
+   npx wrangler d1 execute TU-BASE-D1 --local --file=./migrations/0002_seed_services.sql
+   ```
+3. Levanta el sitio:
+   ```bash
+   npm run dev
+   ```
+   Abre `http://localhost:8788` — ahora `/api/*` sí responde, usando la misma base local que acabas de migrar (Wrangler la resuelve por el bloque `[[d1_databases]]` de `wrangler.toml`, así que migraciones y `dev` comparten los mismos datos).
 
 ## API
 

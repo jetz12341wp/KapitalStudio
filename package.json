@@ -8,6 +8,6 @@
     "d1:migrate:remote": "wrangler d1 execute kapital-studio-db --remote --file=./migrations/0001_init.sql && wrangler d1 execute kapital-studio-db --remote --file=./migrations/0002_seed_services.sql"
   },
   "devDependencies": {
-    "wrangler": "^3.78.0"
+    "wrangler": "^4.20.0"
   }
 }

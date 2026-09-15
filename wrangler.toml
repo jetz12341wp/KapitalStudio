@@ -1,0 +1,23 @@
+name = "kapital-studio"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "public"
+
+# Este archivo SÍ debe estar en el repositorio: Cloudflare Pages detecta que
+# `package.json` depende de `wrangler` y usa un build basado en Wrangler para
+# este proyecto. Sin `pages_build_output_dir` aquí, Wrangler no tiene forma de
+# saber que esto es un proyecto Pages (y no un Worker), y el deploy falla con
+# "It looks like you've run a Workers-specific command in a Pages project."
+#
+# El binding de D1 para el sitio YA DESPLEGADO se configura por separado, en
+# el dashboard de Cloudflare Pages → Settings → Functions → D1 database
+# bindings (variable "DB"). No hace falta declarar la base D1 aquí para que
+# el sitio en producción funcione.
+#
+# Para DESARROLLO LOCAL con una base D1 (opcional, ver README → "Desarrollo
+# local"), descomenta este bloque y pon los datos de tu base real (no son
+# sensibles, son solo identificadores, no credenciales):
+#
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "TU-BASE-D1"
+# database_id = "TU-DATABASE-ID"

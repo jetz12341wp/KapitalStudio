@@ -3,9 +3,3 @@ node_modules/
 *.pem
 service-account*.json
 .dev.vars
-# No se commitea: el proyecto ya está conectado a Cloudflare Pages por
-# GitHub, y tener un wrangler.toml en el repo hace que el sistema de build
-# de Cloudflare intente desplegarlo como Worker en vez de como Pages
-# (error "Workers-specific command in a Pages project"). Créalo localmente
-# si lo necesitas para `wrangler pages dev` (ver README).
-wrangler.toml
