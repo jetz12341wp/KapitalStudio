@@ -75,7 +75,6 @@ En **`/admin`** (misma clave que para los días bloqueados), sección **"Citas r
 
 - Elige una fecha para ver quién tiene cita ese día (persona, nombre, teléfono, servicio).
 - Botón **"Cancelar"** en cada fila para liberar ese horario (por ejemplo, si alguien reservó con la persona equivocada).
-- Más abajo, **"Cargar o corregir una cita manualmente"** deja agregar una cita a mano con los datos correctos (útil después de cancelar una mal hecha, o para bloquear un horario que se coordinó directo por WhatsApp sin pasar por el formulario).
 
 También se puede ver todo directo en la base: dashboard de Cloudflare → tu base `kapital-studio-db` → pestaña "Console" → `SELECT * FROM citas ORDER BY fecha, hora;` (esta tabla sí guarda nombre y teléfono del cliente, a diferencia de `dias_bloqueados`).
 

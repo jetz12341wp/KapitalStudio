@@ -49,42 +49,9 @@
 
       <div class="card mt-4">
         <h2 class="font-bold">Citas reservadas</h2>
-        <p class="text-sm mt-1" style="color:var(--brand-gray)">Elige una fecha para ver quién tiene cita ese día. Si alguien se equivocó al reservar, cancela esa cita (libera el horario) y, si hace falta, cárgala de nuevo abajo con los datos correctos.</p>
+        <p class="text-sm mt-1" style="color:var(--brand-gray)">Elige una fecha para ver quién tiene cita ese día. Si alguien se equivocó al reservar, cancela esa cita para liberar el horario.</p>
         <input id="citas-fecha" type="date" class="mt-3">
         <div id="citas-list" class="mt-3 text-sm">Elige una fecha arriba.</div>
-      </div>
-
-      <div class="card mt-4">
-        <h2 class="font-bold">Cargar o corregir una cita manualmente</h2>
-        <div class="grid sm:grid-cols-2 gap-3 mt-3">
-          <input id="cita-fecha" type="date" placeholder="Fecha">
-          <select id="cita-hora">
-            <option value="">Hora</option>
-            <option value="10:00 am">10:00 am</option>
-            <option value="11:00 am">11:00 am</option>
-            <option value="12:00 pm">12:00 pm</option>
-            <option value="1:00 pm">1:00 pm</option>
-            <option value="2:00 pm">2:00 pm</option>
-            <option value="3:00 pm">3:00 pm</option>
-            <option value="4:00 pm">4:00 pm</option>
-            <option value="5:00 pm">5:00 pm</option>
-            <option value="6:00 pm">6:00 pm</option>
-            <option value="7:00 pm">7:00 pm</option>
-            <option value="8:00 pm">8:00 pm</option>
-            <option value="9:00 pm">9:00 pm</option>
-          </select>
-          <select id="cita-persona">
-            <option value="">Persona</option>
-            <option value="Persona 1">Persona 1</option>
-            <option value="Persona 2">Persona 2</option>
-            <option value="Persona 3">Persona 3</option>
-          </select>
-          <input id="cita-nombre" type="text" placeholder="Nombre del cliente">
-          <input id="cita-telefono" type="text" placeholder="Teléfono">
-          <input id="cita-servicio" type="text" placeholder="Servicio">
-        </div>
-        <button id="cita-add-btn" class="btn-primary mt-3">Guardar cita</button>
-        <p id="cita-add-msg" class="text-sm mt-2"></p>
       </div>
     </div>
   </div>
@@ -184,8 +151,6 @@
 
   var citasFecha = document.getElementById('citas-fecha');
   var citasList = document.getElementById('citas-list');
-  var citaAddBtn = document.getElementById('cita-add-btn');
-  var citaAddMsg = document.getElementById('cita-add-msg');
 
   function loadCitas(){
     var fecha = citasFecha.value;
@@ -225,36 +190,6 @@
   }
 
   citasFecha.addEventListener('change', loadCitas);
-
-  citaAddBtn.addEventListener('click', function(){
-    var fecha = document.getElementById('cita-fecha').value;
-    var hora = document.getElementById('cita-hora').value;
-    var persona = document.getElementById('cita-persona').value;
-    var nombre = document.getElementById('cita-nombre').value.trim();
-    var telefono = document.getElementById('cita-telefono').value.trim();
-    var servicio = document.getElementById('cita-servicio').value.trim();
-
-    if(!fecha || !hora || !persona || !nombre || !telefono || !servicio){
-      citaAddMsg.textContent = 'Completa todos los campos.';
-      return;
-    }
-
-    citaAddBtn.disabled = true;
-    fetch('/api/citas', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ fecha: fecha, hora: hora, persona: persona, nombre: nombre, telefono: telefono, servicio: servicio })
-    }).then(function(r){
-      citaAddBtn.disabled = false;
-      if(r.status === 409){ citaAddMsg.textContent = 'Ese horario ya está ocupado por esa persona.'; return; }
-      if(!r.ok){ citaAddMsg.textContent = 'No se pudo guardar la cita.'; return; }
-      citaAddMsg.textContent = 'Cita guardada.';
-      document.getElementById('cita-nombre').value = '';
-      document.getElementById('cita-telefono').value = '';
-      document.getElementById('cita-servicio').value = '';
-      if(citasFecha.value === fecha) loadCitas();
-    });
-  });
 
   gateBtn.addEventListener('click', tryEnter);
   tokenInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') tryEnter(); });
