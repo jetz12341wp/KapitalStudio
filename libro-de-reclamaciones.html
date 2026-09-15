@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Libro de Reclamaciones | Barbería Skills</title>
+  <meta name="description" content="Libro de Reclamaciones de Barbería Skills, conforme al Código de Protección y Defensa del Consumidor (Ley N° 29571).">
+  <meta name="robots" content="index, follow">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{--brand-accent:#B8933F;--brand-dark:#0F0D0A;--brand-gray:#6B655B}
+    body{color:var(--brand-dark)}
+    .btn-primary{background:var(--brand-accent);color:#0F0D0A;font-weight:700;border-radius:8px;padding:.9rem 1.9rem;display:inline-block}
+    input,textarea,select{border:1px solid #E4DDD0;border-radius:8px;padding:.75rem 1rem;width:100%}
+  </style>
+</head>
+<body class="antialiased bg-white">
+  <header class="border-b border-gray-100">
+    <nav class="max-w-3xl mx-auto flex items-center justify-between px-4 py-4">
+      <a href="index.html" class="font-extrabold" style="color:var(--brand-dark)">← Volver a Barbería Skills</a>
+    </nav>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-12">
+    <h1 class="text-2xl md:text-3xl font-extrabold">Libro de Reclamaciones</h1>
+    <p class="mt-4 text-sm" style="color:var(--brand-gray)">Conforme al Código de Protección y Defensa del Consumidor (Ley N° 29571), este establecimiento cuenta con un Libro de Reclamaciones a disposición del consumidor. Completa el formulario para registrar tu queja o reclamo; se enviará por correo a nuestro equipo para su atención.</p>
+
+    <form action="mailto:contacto@barberiaskills.pe" method="POST" enctype="text/plain" class="mt-8 grid gap-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <input required type="text" name="nombre" placeholder="Nombre completo">
+        <input required type="text" name="documento" placeholder="DNI / documento de identidad">
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <input required type="tel" name="telefono" placeholder="Teléfono">
+        <input required type="email" name="email" placeholder="Correo electrónico">
+      </div>
+      <select required name="tipo">
+        <option value="">Tipo de registro</option>
+        <option value="Reclamo">Reclamo (disconformidad con el servicio)</option>
+        <option value="Queja">Queja (disconformidad con la atención)</option>
+      </select>
+      <textarea required name="detalle" rows="5" placeholder="Detalle de tu reclamo o queja"></textarea>
+      <!-- Honeypot anti-spam -->
+      <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+      <button type="submit" class="btn-primary">Enviar reclamo →</button>
+      <p class="text-xs" style="color:var(--brand-gray)">Este formulario abre tu cliente de correo para enviar el reclamo directamente al negocio. Recibirás una respuesta en un plazo máximo de 30 días calendario, según ley.</p>
+    </form>
+  </main>
+</body>
+</html>
