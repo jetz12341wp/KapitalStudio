@@ -9,7 +9,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "kapital-studio-db"
-database_id = "PENDIENTE-pega-aqui-el-id-que-te-de-cloudflare"
+database_id = "c7bddfa9-de88-406c-adc9-f7288bd8df30"
 
 [vars]
 ADMIN_TOKEN = "mOw5Dm7WEOj3wZxWqZ4aOzyzMOyd33mc"
