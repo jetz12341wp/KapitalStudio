@@ -64,6 +64,14 @@ Cada `<div class="service-visual">` tiene un `<img>` con `object-fit:contain` (n
 
 - Dominio propio (hoy el `<link rel="canonical">` y el correo de `libro-de-reclamaciones.html` usan `TU-DOMINIO-AQUI.pe` como placeholder).
 - RUC / razón social en el footer.
-- Redes sociales reales del negocio (hoy no hay ninguna enlazada).
 - Fotos reales del local y el equipo (las de servicios ya están, ver sección "Fotos de servicios" arriba).
 - Confirmar que el número de WhatsApp +51 910 085 081 es el correcto y tiene WhatsApp Business activo para responder rápido.
+
+## Redes sociales
+
+Instagram y TikTok están enlazados en tres lugares de `public/index.html`: la sección **Síguenos** (las dos tarjetas grandes con degradado, antes del CTA final), los íconos chicos en el footer, y el campo `sameAs` del JSON-LD (`HairSalon`) para SEO. Los tres apuntan a:
+
+- Instagram: `https://www.instagram.com/kapital.barbershop/`
+- TikTok: `https://www.tiktok.com/@kapital_barber_shop`
+
+Para cambiar el usuario o agregar otra red, busca esas mismas URLs en el archivo y reemplázalas en los tres lugares.
