@@ -332,6 +332,7 @@
         <div>
           <label for="date" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Fecha preferida</label>
           <input type="date" id="date" name="date" class="w-full border rounded-lg px-4 py-3" style="border-color:#E4DDD0">
+          <p id="dias-bloqueados-hint" class="text-xs mt-1 text-left hidden" style="color:var(--brand-gray)"></p>
         </div>
         <div>
           <label for="time" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Hora preferida</label>
@@ -500,6 +501,16 @@
     dateInput.min = new Date().toISOString().slice(0, 10);
   }
 
+  var diasBloqueados = [];
+  var hintEl = document.getElementById('dias-bloqueados-hint');
+  fetch('/api/dias-bloqueados').then(function(r){ return r.json(); }).then(function(dias){
+    diasBloqueados = dias.map(function(d){ return d.fecha; });
+    if(diasBloqueados.length && hintEl){
+      hintEl.textContent = 'No disponibles: ' + diasBloqueados.map(formatFecha).join(', ');
+      hintEl.classList.remove('hidden');
+    }
+  }).catch(function(){ /* si falla, simplemente no se muestran días bloqueados */ });
+
   function formatFecha(iso){
     if(!iso) return '';
     var parts = iso.split('-');
@@ -519,6 +530,11 @@
 
     if(!service || !name || !phone){
       messageEl.textContent = 'Completa servicio, nombre y teléfono.';
+      return;
+    }
+
+    if(date && diasBloqueados.indexOf(date) !== -1){
+      messageEl.textContent = 'Esa fecha no está disponible. Elige otro día.';
       return;
     }
 

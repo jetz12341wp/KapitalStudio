@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Agenda — Panel interno | Kápital Studio</title>
+  <meta name="robots" content="noindex, nofollow">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{--brand-accent:#D41E35;--brand-accent-2:#2B4C8C;--brand-dark:#0F0D0A;--brand-gray:#6B655B;--brand-soft:#F4EFE7}
+    body{color:var(--brand-dark);background:var(--brand-soft)}
+    .btn-primary{background:var(--brand-accent);color:#fff;font-weight:700;border-radius:8px;padding:.75rem 1.5rem}
+    .btn-primary:disabled{opacity:.5}
+    input,textarea{border:1px solid #E4DDD0;border-radius:8px;padding:.65rem .9rem;width:100%;background:#fff}
+    .card{background:#fff;border:1px solid #E4DDD0;border-radius:14px;padding:1.5rem}
+    .day-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.6rem 0;border-bottom:1px solid #F0EBE0}
+    .day-row:last-child{border-bottom:none}
+  </style>
+</head>
+<body class="antialiased">
+
+  <div class="max-w-2xl mx-auto px-4 py-10">
+    <a href="index.html" class="text-sm font-semibold" style="color:var(--brand-gray)">← Volver al sitio</a>
+    <h1 class="text-2xl font-extrabold mt-2">Agenda — días no disponibles</h1>
+    <p class="mt-2 text-sm" style="color:var(--brand-gray)">Marca aquí los días en que Kápital Studio no atiende (vacaciones, feriados, día lleno). Esos días se bloquean automáticamente en el formulario de reservas del sitio.</p>
+
+    <div id="gate" class="card mt-6">
+      <label class="text-sm font-semibold">Clave de acceso</label>
+      <input id="token-input" type="password" class="mt-2" placeholder="Ingresa la clave" autocomplete="off">
+      <button id="gate-btn" class="btn-primary mt-3 w-full">Entrar</button>
+      <p id="gate-error" class="text-sm mt-2 hidden" style="color:var(--brand-accent)">Clave incorrecta o error de conexión.</p>
+    </div>
+
+    <div id="panel" class="mt-6 hidden">
+      <div class="card">
+        <h2 class="font-bold">Bloquear un nuevo día</h2>
+        <div class="grid sm:grid-cols-2 gap-3 mt-3">
+          <input id="new-fecha" type="date">
+          <input id="new-motivo" type="text" placeholder="Motivo (opcional)">
+        </div>
+        <button id="add-btn" class="btn-primary mt-3">Bloquear día</button>
+        <p id="add-msg" class="text-sm mt-2"></p>
+      </div>
+
+      <div class="card mt-4">
+        <h2 class="font-bold">Días bloqueados actualmente</h2>
+        <div id="list" class="mt-3 text-sm">Cargando…</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  var TOKEN_KEY = 'kapital_admin_token';
+  var gate = document.getElementById('gate');
+  var panel = document.getElementById('panel');
+  var tokenInput = document.getElementById('token-input');
+  var gateBtn = document.getElementById('gate-btn');
+  var gateError = document.getElementById('gate-error');
+  var list = document.getElementById('list');
+  var newFecha = document.getElementById('new-fecha');
+  var newMotivo = document.getElementById('new-motivo');
+  var addBtn = document.getElementById('add-btn');
+  var addMsg = document.getElementById('add-msg');
+
+  function getToken(){ return localStorage.getItem(TOKEN_KEY) || ''; }
+
+  function formatFecha(iso){
+    var p = iso.split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+
+  function renderList(dias){
+    if(!dias.length){
+      list.textContent = 'No hay días bloqueados.';
+      return;
+    }
+    list.innerHTML = '';
+    dias.forEach(function(d){
+      var row = document.createElement('div');
+      row.className = 'day-row';
+      var label = document.createElement('span');
+      label.textContent = formatFecha(d.fecha) + (d.motivo ? ' — ' + d.motivo : '');
+      var del = document.createElement('button');
+      del.textContent = 'Liberar';
+      del.className = 'text-sm font-bold';
+      del.style.color = 'var(--brand-accent)';
+      del.addEventListener('click', function(){ deleteDay(d.fecha); });
+      row.appendChild(label);
+      row.appendChild(del);
+      list.appendChild(row);
+    });
+  }
+
+  function loadList(){
+    fetch('/api/dias-bloqueados').then(function(r){ return r.json(); }).then(renderList);
+  }
+
+  function deleteDay(fecha){
+    fetch('/api/dias-bloqueados/' + encodeURIComponent(fecha), {
+      method: 'DELETE',
+      headers: { 'x-admin-token': getToken() }
+    }).then(function(r){
+      if(!r.ok) throw new Error();
+      loadList();
+    }).catch(function(){ alert('No se pudo liberar el día. Verifica tu clave.'); });
+  }
+
+  function tryEnter(){
+    var token = tokenInput.value.trim();
+    if(!token) return;
+    gateError.classList.add('hidden');
+    fetch('/api/admin/verificar', { headers: { 'x-admin-token': token } })
+      .then(function(r){
+        if(!r.ok) throw new Error();
+        localStorage.setItem(TOKEN_KEY, token);
+        gate.classList.add('hidden');
+        panel.classList.remove('hidden');
+        loadList();
+      })
+      .catch(function(){
+        localStorage.removeItem(TOKEN_KEY);
+        gateError.classList.remove('hidden');
+      });
+  }
+
+  addBtn.addEventListener('click', function(){
+    var fecha = newFecha.value;
+    if(!fecha){ addMsg.textContent = 'Elige una fecha.'; return; }
+    addBtn.disabled = true;
+    fetch('/api/dias-bloqueados', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-admin-token': getToken() },
+      body: JSON.stringify({ fecha: fecha, motivo: newMotivo.value.trim() })
+    }).then(function(r){
+      addBtn.disabled = false;
+      if(!r.ok){ addMsg.textContent = 'No se pudo bloquear el día. Verifica tu clave.'; return; }
+      addMsg.textContent = 'Día bloqueado.';
+      newFecha.value = '';
+      newMotivo.value = '';
+      loadList();
+    });
+  });
+
+  gateBtn.addEventListener('click', tryEnter);
+  tokenInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') tryEnter(); });
+
+  var saved = getToken();
+  if(saved){
+    tokenInput.value = saved;
+    tryEnter();
+  }
+})();
+</script>
+</body>
+</html>
