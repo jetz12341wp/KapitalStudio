@@ -52,10 +52,19 @@ El tamaño se controla con CSS propio (`.brand-nav img` y `.brand-logo img`), no
 
 Para reemplazar el logo más adelante (otro diseño, versión con fondo transparente, etc.), solo sube el nuevo archivo a `public/logo.png` desde GitHub (**Add file → Upload files** dentro de la carpeta `public/`, manteniendo el nombre `logo.png`) y confirma el commit — no hace falta tocar el HTML.
 
+## Fotos de servicios
+
+Las tarjetas de la sección **Servicios** (3 destacadas + 4 en el carrusel) usan fotos reales en `public/img/` en vez del ícono genérico anterior:
+
+- `corte-clasico.jpg`, `corte-degradado.jpg`, `corte-tijera.jpg` — tarjetas destacadas.
+- `perfilado-barba.jpg`, `limpieza-facial.jpg`, `ondulacion.jpg`, `tinte.jpg` — carrusel.
+
+Cada `<div class="service-visual">` / `<div class="carousel-visual">` tiene un `<img>` con `object-fit:cover`, así que la foto siempre llena el recuadro (4:3 en destacadas, 1:1 en el carrusel) sin deformarse, recortando los bordes si hace falta. Para cambiar una foto, sube el nuevo archivo a `public/img/` con el mismo nombre desde GitHub (**Add file → Upload files**) y confirma el commit — no hace falta tocar el HTML.
+
 ## Pendiente antes de publicar
 
 - Dominio propio (hoy el `<link rel="canonical">` y el correo de `libro-de-reclamaciones.html` usan `TU-DOMINIO-AQUI.pe` como placeholder).
 - RUC / razón social en el footer.
 - Redes sociales reales del negocio (hoy no hay ninguna enlazada).
-- Fotos reales del local y el equipo.
+- Fotos reales del local y el equipo (las de servicios ya están, ver sección "Fotos de servicios" arriba).
 - Confirmar que el número de WhatsApp +51 910 085 081 es el correcto y tiene WhatsApp Business activo para responder rápido.

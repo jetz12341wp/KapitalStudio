@@ -80,8 +80,8 @@
 
     /* ===== Tarjetas de servicio destacadas ===== */
     .service-card{border-radius:16px;overflow:hidden;border:1px solid #E4DDD0;background:#fff;display:flex;flex-direction:column}
-    .service-visual{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-dark) 0%,var(--brand-accent) 55%,var(--brand-accent-2) 100%)}
-    .service-visual svg{width:34%;height:34%;color:#fff}
+    .service-visual{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-dark) 0%,var(--brand-accent) 55%,var(--brand-accent-2) 100%);overflow:hidden}
+    .service-visual img{width:100%;height:100%;object-fit:cover;display:block}
     .service-body{padding:1.25rem 1.5rem 1.5rem;flex:1;display:flex;flex-direction:column}
     .service-body h3{font-size:1.15rem}
     .service-desc{margin-top:.35rem;font-size:.9rem;color:var(--brand-gray);flex:1}
@@ -94,8 +94,8 @@
     .carousel-track::-webkit-scrollbar{height:6px}
     .carousel-track::-webkit-scrollbar-thumb{background:#E4DDD0;border-radius:9999px}
     .carousel-card{flex:0 0 200px;scroll-snap-align:start;border-radius:14px;overflow:hidden;border:1px solid #E4DDD0;background:#fff}
-    .carousel-visual{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-dark) 0%,var(--brand-accent) 55%,var(--brand-accent-2) 100%)}
-    .carousel-visual svg{width:32%;height:32%;color:#fff}
+    .carousel-visual{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-dark) 0%,var(--brand-accent) 55%,var(--brand-accent-2) 100%);overflow:hidden}
+    .carousel-visual img{width:100%;height:100%;object-fit:cover;display:block}
     .carousel-body{padding:.9rem 1rem 1.1rem}
     .carousel-body h4{font-family:'Playfair Display',serif;font-weight:700;font-size:.98rem}
     .carousel-price{margin-top:.5rem;font-family:'Playfair Display',serif;font-weight:700;color:var(--brand-accent);font-size:1.1rem}
@@ -179,8 +179,8 @@
     <!-- Destacados -->
     <div class="grid md:grid-cols-3 gap-6 mt-10">
       <article class="service-card">
-        <div class="service-visual" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.2" cy="6" r="2.4"/><circle cx="6.2" cy="18" r="2.4"/><line x1="8.3" y1="7.4" x2="20" y2="19"/><line x1="8.3" y1="16.6" x2="20" y2="5"/></svg>
+        <div class="service-visual">
+          <img src="img/corte-clasico.jpg" alt="Corte clásico en Kápital Studio" loading="lazy">
         </div>
         <div class="service-body">
           <h3 class="font-extrabold">Corte clásico</h3>
@@ -192,8 +192,8 @@
         </div>
       </article>
       <article class="service-card">
-        <div class="service-visual" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.2" cy="6" r="2.4"/><circle cx="6.2" cy="18" r="2.4"/><line x1="8.3" y1="7.4" x2="20" y2="19"/><line x1="8.3" y1="16.6" x2="20" y2="5"/></svg>
+        <div class="service-visual">
+          <img src="img/corte-degradado.jpg" alt="Corte degradado en Kápital Studio" loading="lazy">
         </div>
         <div class="service-body">
           <h3 class="font-extrabold">Corte degradado</h3>
@@ -205,8 +205,8 @@
         </div>
       </article>
       <article class="service-card">
-        <div class="service-visual" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.2" cy="6" r="2.4"/><circle cx="6.2" cy="18" r="2.4"/><line x1="8.3" y1="7.4" x2="20" y2="19"/><line x1="8.3" y1="16.6" x2="20" y2="5"/></svg>
+        <div class="service-visual">
+          <img src="img/corte-tijera.jpg" alt="Corte a tijera en Kápital Studio" loading="lazy">
         </div>
         <div class="service-body">
           <h3 class="font-extrabold">Corte a tijera</h3>
@@ -230,8 +230,8 @@
       </div>
       <div id="servicios-carousel" class="carousel-track">
         <article class="carousel-card">
-          <div class="carousel-visual" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="4" rx="1.2"/><path d="M6.5 10V7.3A2.3 2.3 0 0 1 8.8 5h6.4a2.3 2.3 0 0 1 2.3 2.3V10"/></svg>
+          <div class="carousel-visual">
+            <img src="img/perfilado-barba.jpg" alt="Perfilado de barba en Kápital Studio" loading="lazy">
           </div>
           <div class="carousel-body">
             <h4>Perfilado de barba</h4>
@@ -241,8 +241,8 @@
           </div>
         </article>
         <article class="carousel-card">
-          <div class="carousel-visual" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c4.2 2 7 6.2 7 10.2A7 7 0 0 1 5 13.2C5 9.2 7.8 5 12 3Z"/><path d="M12 8.5v9"/></svg>
+          <div class="carousel-visual">
+            <img src="img/limpieza-facial.jpg" alt="Limpieza facial en Kápital Studio" loading="lazy">
           </div>
           <div class="carousel-body">
             <h4>Limpieza facial</h4>
@@ -252,8 +252,8 @@
           </div>
         </article>
         <article class="carousel-card">
-          <div class="carousel-visual" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8c2-3 4-3 6 0s4 3 6 0 4-3 6.5 0"/><path d="M2.5 15.5c2-3 4-3 6 0s4 3 6 0 4-3 6.5 0"/></svg>
+          <div class="carousel-visual">
+            <img src="img/ondulacion.jpg" alt="Ondulación en Kápital Studio" loading="lazy">
           </div>
           <div class="carousel-body">
             <h4>Ondulación</h4>
@@ -263,8 +263,8 @@
           </div>
         </article>
         <article class="carousel-card">
-          <div class="carousel-visual" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6.2 7.2 6.2 11.3A6.2 6.2 0 0 1 5.8 14.3C5.8 10.2 12 3 12 3Z"/></svg>
+          <div class="carousel-visual">
+            <img src="img/tinte.jpg" alt="Tinte en Kápital Studio" loading="lazy">
           </div>
           <div class="carousel-body">
             <h4>Tinte</h4>
