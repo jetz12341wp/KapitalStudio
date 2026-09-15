@@ -79,6 +79,31 @@
     .field:focus{outline:none;border-color:var(--brand-accent)}
     label{display:block;text-align:left;font-size:.8rem;font-weight:700;color:var(--brand-gray);margin-bottom:.35rem}
 
+    /* ===== Tarjetas de servicio destacadas ===== */
+    .service-card{border-radius:16px;overflow:hidden;border:1px solid #E4DDD0;background:#fff;display:flex;flex-direction:column}
+    .service-visual{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-dark),var(--brand-accent))}
+    .service-visual svg{width:34%;height:34%;color:#fff}
+    .service-body{padding:1.25rem 1.5rem 1.5rem;flex:1;display:flex;flex-direction:column}
+    .service-body h3{font-size:1.15rem}
+    .service-desc{margin-top:.35rem;font-size:.9rem;color:var(--brand-gray);flex:1}
+    .service-price-row{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;margin-top:1rem;padding-top:1rem;border-top:1px dashed #E4DDD0}
+    .service-price-note{font-size:.66rem;text-transform:uppercase;letter-spacing:.12em;color:var(--brand-gray);display:block;margin-bottom:.15rem}
+    .service-price{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:var(--brand-accent);line-height:1}
+    .service-price small{font-family:'Jost',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-gray);display:block}
+
+    /* ===== Carrusel de servicios adicionales ===== */
+    .carousel-track{display:flex;gap:1.1rem;overflow-x:auto;scroll-snap-type:x mandatory;padding:.2rem .2rem 1rem;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+    .carousel-track::-webkit-scrollbar{height:6px}
+    .carousel-track::-webkit-scrollbar-thumb{background:#E4DDD0;border-radius:9999px}
+    .carousel-card{flex:0 0 200px;scroll-snap-align:start;border-radius:14px;overflow:hidden;border:1px solid #E4DDD0;background:#fff}
+    .carousel-visual{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand-dark),var(--brand-accent))}
+    .carousel-visual svg{width:32%;height:32%;color:#fff}
+    .carousel-body{padding:.9rem 1rem 1.1rem}
+    .carousel-body h4{font-family:'Playfair Display',serif;font-weight:700;font-size:.98rem}
+    .carousel-price{margin-top:.5rem;font-family:'Playfair Display',serif;font-weight:700;color:var(--brand-accent);font-size:1.1rem}
+    .carousel-nav-btn{width:2.2rem;height:2.2rem;border-radius:9999px;border:1.5px solid var(--brand-dark);background:#fff;font-size:1.1rem;line-height:1;cursor:pointer}
+    .carousel-nav-btn:hover{background:var(--brand-dark);color:#fff}
+
     /* ===== Logo: recreación tipográfica de Kápital Studio (arco + wordmark + estrellas) ===== */
     .brand-nav{display:flex;align-items:baseline;gap:.4rem;text-decoration:none}
     .brand-nav .word{font-family:'Anton',sans-serif;font-size:1.3rem;letter-spacing:.02em;color:var(--brand-dark)}
@@ -166,8 +191,20 @@
     <p class="kicker">Nuestros servicios</p>
     <h2 class="text-2xl md:text-4xl mt-2">Servicios y precios</h2>
     <p class="mt-4 max-w-3xl" style="color:var(--brand-gray)">Elige el servicio que buscas y resérvalo directamente en el formulario de más abajo.</p>
-    <div id="servicios-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+
+    <div id="servicios-featured" class="grid md:grid-cols-3 gap-6 mt-10">
       <p style="color:var(--brand-gray)">Cargando servicios…</p>
+    </div>
+
+    <div id="servicios-mas" class="mt-12 hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-extrabold text-lg">Más servicios</h3>
+        <div class="flex gap-2">
+          <button type="button" id="carousel-prev" class="carousel-nav-btn" aria-label="Servicios anteriores">‹</button>
+          <button type="button" id="carousel-next" class="carousel-nav-btn" aria-label="Más servicios">›</button>
+        </div>
+      </div>
+      <div id="servicios-carousel" class="carousel-track"></div>
     </div>
   </div>
 </section>
@@ -349,27 +386,94 @@
     return s.priceIsFrom ? 'Desde ' + value : value;
   }
 
+  // Iconos genéricos por tipo de servicio (no son fotos reales del local; sirven
+  // de imagen ilustrativa mientras no haya fotografías propias). Si el nombre no
+  // coincide con ninguna palabra clave, se usa el ícono de tijeras por defecto.
+  var SERVICE_ICONS = [
+    { test: /barba/i, svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="4" rx="1.2"/><path d="M6.5 10V7.3A2.3 2.3 0 0 1 8.8 5h6.4a2.3 2.3 0 0 1 2.3 2.3V10"/></svg>' },
+    { test: /facial|piel/i, svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c4.2 2 7 6.2 7 10.2A7 7 0 0 1 5 13.2C5 9.2 7.8 5 12 3Z"/><path d="M12 8.5v9"/></svg>' },
+    { test: /ondul|permanent/i, svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8c2-3 4-3 6 0s4 3 6 0 4-3 6.5 0"/><path d="M2.5 15.5c2-3 4-3 6 0s4 3 6 0 4-3 6.5 0"/></svg>' },
+    { test: /tinte|color/i, svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6.2 7.2 6.2 11.3A6.2 6.2 0 0 1 5.8 14.3C5.8 10.2 12 3 12 3Z"/></svg>' },
+    { test: /corte|tijera|degradad|fade/i, svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.2" cy="6" r="2.4"/><circle cx="6.2" cy="18" r="2.4"/><line x1="8.3" y1="7.4" x2="20" y2="19"/><line x1="8.3" y1="16.6" x2="20" y2="5"/></svg>' }
+  ];
+  var DEFAULT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.2" cy="6" r="2.4"/><circle cx="6.2" cy="18" r="2.4"/><line x1="8.3" y1="7.4" x2="20" y2="19"/><line x1="8.3" y1="16.6" x2="20" y2="5"/></svg>';
+
+  function iconFor(service){
+    for(var i=0;i<SERVICE_ICONS.length;i++){
+      if(SERVICE_ICONS[i].test.test(service.name)) return SERVICE_ICONS[i].svg;
+    }
+    return DEFAULT_ICON;
+  }
+
+  function priceMarkup(s){
+    var price = formatPrice(s);
+    if(!price) return '';
+    var note = s.priceIsFrom ? 'Desde' : 'Precio';
+    var value = s.priceIsFrom ? price.replace(/^Desde\s*/, '') : price;
+    return '<div class="text-right"><span class="service-price-note">' + note + '</span>' +
+      '<span class="service-price">' + escapeHtml(value) + '</span></div>';
+  }
+
+  function renderFeaturedCard(s){
+    var description = s.description ? escapeHtml(s.description) : ('Duración aproximada: ' + s.duration + ' min.');
+    return '<article class="service-card">' +
+      '<div class="service-visual" aria-hidden="true">' + iconFor(s) + '</div>' +
+      '<div class="service-body">' +
+        '<h3 class="font-extrabold">' + escapeHtml(s.name) + '</h3>' +
+        '<p class="service-desc">' + description + ' · ⏱ ' + s.duration + ' min</p>' +
+        '<div class="service-price-row">' +
+          '<a href="#reserva" class="font-bold text-sm" style="color:var(--brand-accent)" data-preselect="' + escapeHtml(s.id) + '">RESERVAR →</a>' +
+          priceMarkup(s) +
+        '</div>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function renderCarouselCard(s){
+    var price = formatPrice(s);
+    return '<article class="carousel-card">' +
+      '<div class="carousel-visual" aria-hidden="true">' + iconFor(s) + '</div>' +
+      '<div class="carousel-body">' +
+        '<h4>' + escapeHtml(s.name) + '</h4>' +
+        (price ? '<p class="carousel-price">' + escapeHtml(price) + '</p>' : '') +
+        '<p class="text-xs mt-1" style="color:var(--brand-gray)">⏱ ' + s.duration + ' min</p>' +
+        '<a href="#reserva" class="inline-block mt-2 font-bold text-xs" style="color:var(--brand-accent)" data-preselect="' + escapeHtml(s.id) + '">RESERVAR →</a>' +
+      '</div>' +
+    '</article>';
+  }
+
   function renderServiceCards(services){
     var countEl = document.getElementById('services-count');
     if(countEl) countEl.textContent = services.length;
-    var grid = document.getElementById('servicios-grid');
+
+    var featuredEl = document.getElementById('servicios-featured');
+    var masSection = document.getElementById('servicios-mas');
+    var carouselEl = document.getElementById('servicios-carousel');
+
     if(services.length === 0){
-      grid.innerHTML = '<p style="color:var(--brand-gray)">Aún no hay servicios publicados. Vuelve pronto.</p>';
+      featuredEl.innerHTML = '<p style="color:var(--brand-gray)">Aún no hay servicios publicados. Vuelve pronto.</p>';
+      masSection.classList.add('hidden');
       return;
     }
-    grid.innerHTML = services.map(function(s){
-      var description = s.description ? escapeHtml(s.description) : ('Duración aproximada: ' + s.duration + ' min.');
-      var price = formatPrice(s);
-      return '<article class="rounded-xl border p-6">' +
-        '<div class="flex items-start justify-between gap-3">' +
-          '<h3 class="text-lg font-extrabold">' + escapeHtml(s.name) + '</h3>' +
-          (price ? '<span class="price-tag">' + escapeHtml(price) + '</span>' : '') +
-        '</div>' +
-        '<p class="mt-2 text-sm" style="color:var(--brand-gray)">' + description + '</p>' +
-        '<p class="mt-2 text-xs font-semibold" style="color:var(--brand-gray)">⏱ ' + s.duration + ' min</p>' +
-        '<a href="#reserva" class="inline-block mt-3 font-bold text-sm" style="color:var(--brand-accent)" data-preselect="' + escapeHtml(s.id) + '">RESERVAR →</a>' +
-        '</article>';
-    }).join('');
+
+    // Los primeros 3 (según el orden definido en el panel admin) van destacados;
+    // el resto se muestra en un carrusel ordenado de menor a mayor precio.
+    var featured = services.slice(0, 3);
+    var rest = services.slice(3).slice().sort(function(a, b){
+      var pa = a.price === null || a.price === undefined ? Infinity : Number(a.price);
+      var pb = b.price === null || b.price === undefined ? Infinity : Number(b.price);
+      return pa - pb;
+    });
+
+    featuredEl.innerHTML = featured.map(renderFeaturedCard).join('');
+
+    if(rest.length === 0){
+      masSection.classList.add('hidden');
+      carouselEl.innerHTML = '';
+    } else {
+      masSection.classList.remove('hidden');
+      carouselEl.innerHTML = rest.map(renderCarouselCard).join('');
+    }
   }
 
   function loadServices(){
@@ -388,7 +492,7 @@
       })
       .catch(function(){
         setMessage('No se pudo cargar la lista de servicios. Intenta recargar la página.', true);
-        document.getElementById('servicios-grid').innerHTML = '<p style="color:var(--brand-gray)">No se pudo cargar la lista de servicios.</p>';
+        document.getElementById('servicios-featured').innerHTML = '<p style="color:var(--brand-gray)">No se pudo cargar la lista de servicios.</p>';
       });
   }
 
@@ -428,7 +532,7 @@
   serviceSelect.addEventListener('change', loadAvailability);
   dateInput.addEventListener('change', loadAvailability);
 
-  document.getElementById('servicios-grid').addEventListener('click', function(e){
+  function onPreselectClick(e){
     var link = e.target.closest('[data-preselect]');
     if(!link) return;
     var value = link.getAttribute('data-preselect');
@@ -436,7 +540,20 @@
       serviceSelect.value = value;
       loadAvailability();
     }, 300);
-  });
+  }
+  document.getElementById('servicios-featured').addEventListener('click', onPreselectClick);
+  document.getElementById('servicios-carousel').addEventListener('click', onPreselectClick);
+
+  var carouselTrack = document.getElementById('servicios-carousel');
+  var carouselPrev = document.getElementById('carousel-prev');
+  var carouselNext = document.getElementById('carousel-next');
+  function scrollCarousel(dir){
+    var card = carouselTrack.querySelector('.carousel-card');
+    var step = card ? card.getBoundingClientRect().width + 18 : 220;
+    carouselTrack.scrollBy({ left: dir * step * 2, behavior: 'smooth' });
+  }
+  carouselPrev.addEventListener('click', function(){ scrollCarousel(-1); });
+  carouselNext.addEventListener('click', function(){ scrollCarousel(1); });
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
