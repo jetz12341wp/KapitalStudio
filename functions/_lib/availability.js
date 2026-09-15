@@ -1,4 +1,4 @@
-const { BUSINESS_HOURS, SLOT_STEP_MINUTES } = require('./config');
+import { BUSINESS_HOURS, SLOT_STEP_MINUTES } from './config.js';
 
 function toMinutes(hhmm) {
   const [h, m] = hhmm.split(':').map(Number);
@@ -6,9 +6,7 @@ function toMinutes(hhmm) {
 }
 
 function toHHMM(minutes) {
-  const h = Math.floor(minutes / 60)
-    .toString()
-    .padStart(2, '0');
+  const h = Math.floor(minutes / 60).toString().padStart(2, '0');
   const m = (minutes % 60).toString().padStart(2, '0');
   return `${h}:${m}`;
 }
@@ -71,4 +69,4 @@ function isSlotAvailable(date, startTime, durationMinutes, existingAppointments)
   });
 }
 
-module.exports = { computeAvailableSlots, isSlotAvailable, toMinutes, toHHMM, dayOfWeek };
+export { computeAvailableSlots, isSlotAvailable, toMinutes, toHHMM, dayOfWeek };

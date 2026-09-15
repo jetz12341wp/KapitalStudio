@@ -1,0 +1,13 @@
+name = "kapital-studio"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "public"
+
+# Este bloque es SOLO para desarrollo local con `wrangler pages dev`.
+# El binding real que usa el sitio ya desplegado se configura en el dashboard
+# de Cloudflare Pages: Settings → Functions → D1 database bindings (variable
+# "DB" → tu base de datos). Reemplaza database_name / database_id por los
+# de tu base real (los ves en el dashboard o con `wrangler d1 list`).
+[[d1_databases]]
+binding = "DB"
+database_name = "kapital-studio-db"
+database_id = "REEMPLAZA-CON-TU-DATABASE-ID"

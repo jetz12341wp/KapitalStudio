@@ -1,0 +1,13 @@
+{
+  "name": "kapital-studio",
+  "private": true,
+  "description": "Sitio y sistema de reservas de Kápital Studio (Cloudflare Pages + Functions + D1)",
+  "scripts": {
+    "dev": "wrangler pages dev public",
+    "d1:migrate:local": "wrangler d1 execute kapital-studio-db --local --file=./migrations/0001_init.sql && wrangler d1 execute kapital-studio-db --local --file=./migrations/0002_seed_services.sql",
+    "d1:migrate:remote": "wrangler d1 execute kapital-studio-db --remote --file=./migrations/0001_init.sql && wrangler d1 execute kapital-studio-db --remote --file=./migrations/0002_seed_services.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^3.78.0"
+  }
+}

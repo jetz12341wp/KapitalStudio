@@ -1,7 +1,5 @@
 node_modules/
-server/node_modules/
-server/data/*.sqlite
-server/data/*.sqlite-*
-server/.env
+.wrangler/
 *.pem
 service-account*.json
+.dev.vars

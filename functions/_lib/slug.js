@@ -1,4 +1,4 @@
-function slugify(text) {
+export function slugify(text) {
   return text
     .toString()
     .normalize('NFD')
@@ -9,17 +9,15 @@ function slugify(text) {
     .replace(/^-+|-+$/g, '');
 }
 
-// Genera un id único para un nuevo servicio a partir de su nombre,
-// agregando -2, -3... si ya existe uno igual.
-function uniqueSlug(text, exists) {
+// Genera un id único para un nuevo servicio a partir de su nombre, agregando
+// -2, -3... si ya existe uno igual. `exists` puede ser async (se usa con D1).
+export async function uniqueSlug(text, exists) {
   const base = slugify(text) || 'servicio';
   let candidate = base;
   let n = 2;
-  while (exists(candidate)) {
+  while (await exists(candidate)) {
     candidate = `${base}-${n}`;
     n += 1;
   }
   return candidate;
 }
-
-module.exports = { slugify, uniqueSlug };
