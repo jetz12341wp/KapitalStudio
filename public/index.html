@@ -342,14 +342,32 @@
         <label for="name" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Nombre completo</label>
         <input type="text" id="name" name="name" required autocomplete="name" class="w-full border rounded-lg px-4 py-3" style="border-color:#E4DDD0">
       </div>
+      <div>
+        <label for="phone" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Tu teléfono</label>
+        <input type="tel" id="phone" name="phone" required autocomplete="tel" class="w-full border rounded-lg px-4 py-3" style="border-color:#E4DDD0">
+      </div>
       <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label for="phone" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Tu teléfono</label>
-          <input type="tel" id="phone" name="phone" required autocomplete="tel" class="w-full border rounded-lg px-4 py-3" style="border-color:#E4DDD0">
-        </div>
         <div>
           <label for="date" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Fecha preferida</label>
           <input type="date" id="date" name="date" class="w-full border rounded-lg px-4 py-3" style="border-color:#E4DDD0">
+        </div>
+        <div>
+          <label for="time" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Hora preferida</label>
+          <select id="time" name="time" class="w-full border rounded-lg px-4 py-3" style="border-color:#E4DDD0">
+            <option value="">Elige una hora</option>
+            <option value="10:00 am">10:00 am</option>
+            <option value="11:00 am">11:00 am</option>
+            <option value="12:00 pm">12:00 pm</option>
+            <option value="1:00 pm">1:00 pm</option>
+            <option value="2:00 pm">2:00 pm</option>
+            <option value="3:00 pm">3:00 pm</option>
+            <option value="4:00 pm">4:00 pm</option>
+            <option value="5:00 pm">5:00 pm</option>
+            <option value="6:00 pm">6:00 pm</option>
+            <option value="7:00 pm">7:00 pm</option>
+            <option value="8:00 pm">8:00 pm</option>
+            <option value="9:00 pm">9:00 pm</option>
+          </select>
         </div>
       </div>
       <div>
@@ -485,6 +503,7 @@
     var name = form.name.value.trim();
     var phone = form.phone.value.trim();
     var date = form.date.value;
+    var time = form.time.value;
     var notes = form.notes.value.trim();
 
     if(!service || !name || !phone){
@@ -499,6 +518,7 @@
       'Teléfono: ' + phone
     ];
     if(date) lines.push('Fecha preferida: ' + formatFecha(date));
+    if(time) lines.push('Hora preferida: ' + time);
     if(notes) lines.push('Notas: ' + notes);
 
     var text = encodeURIComponent(lines.join('\n'));
