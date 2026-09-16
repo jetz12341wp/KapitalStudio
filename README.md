@@ -120,9 +120,32 @@ Cada `<div class="service-visual">` tiene un `<img>` con `object-fit:contain` (n
 
 ## Redes sociales
 
-Instagram y TikTok están enlazados en tres lugares de `public/index.html`: la sección **Síguenos** (las dos tarjetas grandes con degradado, antes del CTA final), los íconos chicos en el footer, y el campo `sameAs` del JSON-LD (`HairSalon`) para SEO. Los tres apuntan a:
+Instagram, TikTok y Facebook están enlazados en tres lugares de `public/index.html`: la sección **Síguenos** (las tres tarjetas con degradado, antes del CTA final), los íconos chicos en el footer, y el campo `sameAs` del JSON-LD (`HairSalon`) para SEO. Apuntan a:
 
 - Instagram: `https://www.instagram.com/kapital.barbershop/`
 - TikTok: `https://www.tiktok.com/@kapital_barber_shop`
+- Facebook: `https://www.facebook.com/KapitalStudio.pe`
 
 Para cambiar el usuario o agregar otra red, busca esas mismas URLs en el archivo y reemplázalas en los tres lugares.
+
+## Formas de pago
+
+Sección **"Formas de pago"** (entre Ubicación y FAQ) con 3 insignias: Efectivo, Yape y Plin. Son solo visuales (íconos genéricos con los colores de marca de cada uno, no los logos oficiales) — no procesan ningún pago, solo le avisan al cliente qué medios acepta el negocio en el local. Para agregar o quitar un medio de pago, edita el bloque `<!-- FORMAS DE PAGO -->` en `public/index.html`.
+
+## Productos
+
+Nueva sección **"Productos"** (entre Servicios y Nosotros) con 5 productos de ejemplo (`Producto 1` a `Producto 5`, con precios y descripciones genéricas de ejemplo) para que reemplaces con tus productos reales. Usa un color azul (en vez del rojo de Servicios) para diferenciarse visualmente, combinando igual con la marca.
+
+Cada tarjeta tiene un selector de cantidad y dos botones:
+
+- **Comprar ahora** — abre WhatsApp directo con ese producto y la cantidad elegida, sin pasar por el carrito.
+- **Agregar al carrito** — lo suma a un carrito (aparece un botón flotante azul abajo a la izquierda, con la cantidad de artículos). Al abrir el carrito se ve el detalle por producto (cantidad y subtotal) y el total; el botón **"Finalizar compra por WhatsApp"** arma un solo mensaje con todos los productos, cantidades y el monto total, y recién ahí abre WhatsApp.
+
+El carrito vive solo en la memoria de la página (no se guarda en ningún lado): si la persona recarga el sitio, el carrito se vacía.
+
+Para reemplazar los productos de ejemplo por los reales, en `public/index.html` busca `id="productos-grid"` y edita, para cada `<article class="product-card">`:
+
+1. Los atributos `data-product-id`, `data-product-name` y `data-product-price` (el precio en soles, solo el número).
+2. El texto visible: nombre (`<h3>`), descripción (`<p class="product-desc">`) y precio mostrado (`<span class="product-price">`).
+
+Dile a Claude los 5 productos (nombre, precio y descripción breve) y se actualiza todo junto, en el mismo formato.
