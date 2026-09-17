@@ -58,33 +58,40 @@ Esto **no reemplaza** el flujo de reservas por WhatsApp: las citas se siguen coo
 
 ## Personas y disponibilidad por horario
 
-El formulario tiene un campo **"¿Con quién deseas que te atienda?"** con 3 opciones (`Alejandro Galindo`, `Niczon (Sensei)`, `Lian Rojas`) más `Cualquiera disponible`. Las 3 personas pueden atender en simultáneo — una misma fecha y hora admite hasta 3 citas, una por persona — y una hora recién se considera completa cuando las 3 ya están ocupadas, en almuerzo o marcadas como no disponibles ahí.
+El formulario tiene un campo **"¿Con quién deseas que te atienda?"** con `Cualquiera disponible` más una opción por cada persona del equipo. Las personas pueden atender en simultáneo — una misma fecha y hora admite una cita por persona — y una hora recién se considera completa cuando todas están ocupadas, en almuerzo o no disponibles ahí. Las citas se pueden agendar de **10:00 am a 8:00 pm** (última hora reservable).
 
-Cada persona tiene un horario de almuerzo fijo en el que no se le puede agendar (bloqueado automáticamente, tanto en el formulario como en el servidor):
+La lista de personas ya **no está escrita a mano en el código**: vive en la base D1 (tabla `personas`) y se administra desde `/admin`, sección **"Personas que atienden"** (ver más abajo). El formulario público carga esa lista automáticamente al abrir la página (`GET /api/personas`).
 
-- **Alejandro Galindo**: 2:00 pm – 4:00 pm (bloquea los horarios de 2:00 pm y 3:00 pm)
-- **Niczon (Sensei)**: 12:00 pm – 2:00 pm (bloquea los horarios de 12:00 pm y 1:00 pm)
-- **Lian Rojas**: 1:00 pm – 3:00 pm (bloquea los horarios de 1:00 pm y 2:00 pm)
+Cada persona tiene su propio horario de almuerzo (configurable, ver abajo), en el que no se le puede agendar. Al elegir una persona específica en el formulario, las horas de su almuerzo **desaparecen directamente de la lista de horas** (no hace falta ni intentar elegirlas); si se elige "Cualquiera disponible" se muestran todas las horas, porque siempre puede haber alguien más libre en ese horario.
 
 Esto se verifica justo al hacer clic en **"Enviar por WhatsApp"**:
 
 1. Si falta completar algún campo obligatorio (todos menos "Notas"), aparece un recuadro de alerta listando qué falta y no se envía nada.
-2. Si se eligió una persona específica y esa persona ya tiene una cita en esa fecha y hora, está en su horario de almuerzo, o fue marcada como no disponible desde `/admin` (ver "Indisponibilidad de personal" abajo), aparece un aviso específico pidiendo elegir otra persona, hora o día.
-3. Si se eligió "Cualquiera disponible", el sitio asigna automáticamente a la primera persona libre en ese horario (descartando ocupadas, en almuerzo o no disponibles); si ninguna está libre, avisa que el horario está completo.
+2. Si se eligió una persona específica y esa persona ya tiene una cita en esa fecha y hora, está en su horario de almuerzo, fue marcada como que ya no recibe citas, o fue marcada como no disponible desde `/admin` para esa fecha/hora puntual (ver "Indisponibilidad de personal" abajo), aparece un aviso específico pidiendo elegir otra persona, hora o día.
+3. Si se eligió "Cualquiera disponible", el sitio asigna automáticamente a la primera persona libre en ese horario (descartando ocupadas, en almuerzo, que ya no reciben citas, o no disponibles); si ninguna está libre, avisa que el horario está completo.
 4. Si todo está disponible, la cita se guarda (tabla `citas` en D1) y recién ahí se abre WhatsApp con el mensaje, incluyendo con qué persona quedó la cita. Después de enviar, el formulario se limpia solo para la siguiente persona.
 
-El servidor (`src/index.js`) vuelve a validar el horario de almuerzo y la indisponibilidad al guardar la cita, así que aunque alguien llame a la API directamente sin pasar por el formulario, no puede saltarse estas reglas.
+El servidor (`src/index.js`) vuelve a validar el horario de almuerzo, si la persona sigue activa y la indisponibilidad al guardar la cita, así que aunque alguien llame a la API directamente sin pasar por el formulario, no puede saltarse estas reglas.
 
-Para cambiar los nombres del equipo, edita las opciones del `<select id="barbero">` y el array `PERSONAS` en `public/index.html`, y el array `PERSONAS` en `src/index.js` (dile a Claude los nombres y se actualiza solo).
+### Agregar, quitar o editar el horario de almuerzo del equipo
 
-### Indisponibilidad de personal (vacaciones, citas médicas, etc.)
+En **`/admin`** (misma clave que para los días bloqueados), sección **"Personas que atienden"**:
 
-Además del horario de almuerzo fijo, en **`/admin`** (misma clave que para los días bloqueados), sección **"Indisponibilidad de personal"**, se puede marcar a cualquiera de las 3 personas como no disponible:
+- **Agregar una persona nueva**: escribe su nombre completo, elige (opcionalmente) su horario de almuerzo "desde" y "hasta", y presiona **"Agregar persona"**. Aparece de inmediato como opción en el formulario del sitio.
+- **Cambiar el horario de almuerzo** de alguien ya existente: en su fila, elige las nuevas horas "desde"/"hasta" y presiona **"Guardar horario de almuerzo"**. Si no debe tener almuerzo bloqueado, deja ambos selectores en "—".
+- **Marcar que ya no recibe citas** (por ejemplo, dejó de trabajar en el local, o está de vacaciones por tiempo indefinido): botón **"Marcar no disponible"** en su fila — pide un motivo, que se le muestra al cliente en el formulario si intenta elegir a esa persona. Para que vuelva a recibir citas, presiona **"Reactivar"**.
+- **Eliminar** a alguien de la lista por completo: botón **"Eliminar"** en su fila. Las citas ya guardadas con esa persona no se borran, solo deja de aparecer como opción para citas nuevas.
+
+### Indisponibilidad de personal por fecha (vacaciones cortas, citas médicas, etc.)
+
+Además del horario de almuerzo fijo, en **`/admin`**, sección **"Indisponibilidad de personal"**, se puede marcar a cualquiera del equipo como no disponible para una fecha puntual:
 
 - **Todo un día** (por ejemplo, vacaciones o descanso médico): marca la casilla "Todo el día".
 - **Solo una hora puntual** dentro de su horario (por ejemplo, una cita médica a las 4:00 pm): elige la hora en vez de marcar "Todo el día".
 
 Esa persona deja de aparecer como disponible en el formulario de reservas para esa fecha/hora automáticamente (tabla `indisponibilidad_personas` en D1). Para liberar el bloqueo antes de tiempo, busca la fecha en la lista de abajo del mismo panel y presiona "Liberar".
+
+> La diferencia con "Marcar no disponible" de la sección anterior: esto último es indefinido (hasta que se reactive a la persona), mientras que la indisponibilidad de esta sección es para una fecha específica.
 
 ### Ver, cancelar o corregir una cita
 
@@ -107,6 +114,7 @@ Para agregar, quitar o modificar un servicio, edita ambos lugares.
 ## Horario de atención
 
 - Todos los días: 10:00 a. m. – 9:00 p. m.
+- El formulario de citas solo permite reservar de 10:00 am a 8:00 pm (última hora reservable), para que la cita alcance a completarse antes del cierre.
 
 ## Logo
 
@@ -129,7 +137,7 @@ Cada `<div class="service-visual">` tiene un `<img>` con `object-fit:contain` (n
 
 ## Pendiente antes de publicar
 
-- **Correr `npm run db:migrate:remote`** (o pegar el SQL de `migrations/0002_citas.sql` y `migrations/0003_indisponibilidad.sql` en la Console de Cloudflare) para crear las tablas `citas` e `indisponibilidad_personas` en la base real. Sin este paso, el formulario no podrá guardar ni consultar citas, y el panel de indisponibilidad no funcionará.
+- **Correr `npm run db:migrate:remote`** (o pegar el SQL de `migrations/0002_citas.sql`, `migrations/0003_indisponibilidad.sql` y `migrations/0004_personas.sql` en la Console de Cloudflare) para crear las tablas `citas`, `indisponibilidad_personas` y `personas` en la base real. Sin este paso, el formulario no podrá guardar ni consultar citas, y los paneles de personas / indisponibilidad no funcionarán.
 - Dominio propio (hoy el `<link rel="canonical">` y el correo de `libro-de-reclamaciones.html` usan `TU-DOMINIO-AQUI.pe` como placeholder).
 - RUC / razón social en el footer.
 - Fotos reales del local y el equipo (las de servicios ya están, ver sección "Fotos de servicios" arriba).

@@ -511,6 +511,7 @@
           <option value="Niczon (Sensei)">Niczon (Sensei)</option>
           <option value="Lian Rojas">Lian Rojas</option>
         </select>
+        <p id="barbero-hint" class="text-xs mt-1 text-left hidden" style="color:var(--brand-accent)"></p>
       </div>
       <div>
         <label for="name" class="block text-left text-sm font-bold mb-1" style="color:var(--brand-gray)">Nombre completo</label>
@@ -541,7 +542,6 @@
             <option value="6:00 pm">6:00 pm</option>
             <option value="7:00 pm">7:00 pm</option>
             <option value="8:00 pm">8:00 pm</option>
-            <option value="9:00 pm">9:00 pm</option>
           </select>
         </div>
       </div>
@@ -879,16 +879,85 @@
 
 (function(){
   var WHATSAPP_NUMBER = '51910085081';
-  var PERSONAS = ['Alejandro Galindo', 'Niczon (Sensei)', 'Lian Rojas'];
-  var LUNCH_BREAKS = {
-    'Alejandro Galindo': ['2:00 pm', '3:00 pm'],
-    'Niczon (Sensei)': ['12:00 pm', '1:00 pm'],
-    'Lian Rojas': ['1:00 pm', '2:00 pm'],
-  };
   var form = document.getElementById('booking-form');
   var messageEl = document.getElementById('form-message');
   var submitBtn = form ? form.querySelector('button[type="submit"]') : null;
   if(!form) return;
+
+  var timeSelect = document.getElementById('time');
+  var barberoHintEl = document.getElementById('barbero-hint');
+
+  function parseHora(hora){
+    var m = /^(\d{1,2}):(\d{2})\s*(am|pm)$/i.exec(String(hora || '').trim());
+    if(!m) return null;
+    var h = parseInt(m[1], 10) % 12;
+    if(m[3].toLowerCase() === 'pm') h += 12;
+    return h * 60 + parseInt(m[2], 10);
+  }
+
+  function horaEnAlmuerzo(hora, inicio, fin){
+    if(!inicio || !fin) return false;
+    var h = parseHora(hora), i = parseHora(inicio), f = parseHora(fin);
+    if(h === null || i === null || f === null) return false;
+    return h >= i && h < f;
+  }
+
+  // Respaldo por si falla la carga de /api/personas (así el formulario sigue funcionando).
+  var PERSONAS_FALLBACK = [
+    { nombre: 'Alejandro Galindo', almuerzo_inicio: '2:00 pm', almuerzo_fin: '4:00 pm', activa: 1, motivo_inactiva: null },
+    { nombre: 'Niczon (Sensei)', almuerzo_inicio: '12:00 pm', almuerzo_fin: '2:00 pm', activa: 1, motivo_inactiva: null },
+    { nombre: 'Lian Rojas', almuerzo_inicio: '1:00 pm', almuerzo_fin: '3:00 pm', activa: 1, motivo_inactiva: null }
+  ];
+  var personasData = PERSONAS_FALLBACK;
+
+  function personaPorNombre(nombre){
+    for(var i = 0; i < personasData.length; i++){
+      if(personasData[i].nombre === nombre) return personasData[i];
+    }
+    return null;
+  }
+
+  function poblarPersonasSelect(personas){
+    while(form.barbero.options.length > 2){ form.barbero.remove(2); }
+    personas.forEach(function(p){
+      var opt = document.createElement('option');
+      opt.value = p.nombre;
+      opt.textContent = p.nombre;
+      form.barbero.appendChild(opt);
+    });
+  }
+
+  function actualizarHorasSegunPersona(){
+    var seleccionado = form.barbero.value;
+    var p = (seleccionado && seleccionado !== 'Cualquiera disponible') ? personaPorNombre(seleccionado) : null;
+    var opciones = timeSelect.querySelectorAll('option[value]:not([value=""])');
+    var valorActualValido = true;
+    opciones.forEach(function(opt){
+      var bloqueada = p ? horaEnAlmuerzo(opt.value, p.almuerzo_inicio, p.almuerzo_fin) : false;
+      opt.hidden = bloqueada;
+      opt.disabled = bloqueada;
+      if(bloqueada && timeSelect.value === opt.value) valorActualValido = false;
+    });
+    if(!valorActualValido) timeSelect.value = '';
+
+    if(p && !p.activa){
+      barberoHintEl.textContent = seleccionado + ' no está recibiendo citas por el momento' + (p.motivo_inactiva ? ': ' + p.motivo_inactiva : '') + '.';
+      barberoHintEl.classList.remove('hidden');
+    } else {
+      barberoHintEl.textContent = '';
+      barberoHintEl.classList.add('hidden');
+    }
+  }
+
+  form.barbero.addEventListener('change', actualizarHorasSegunPersona);
+
+  fetch('/api/personas').then(function(r){ return r.json(); }).then(function(personas){
+    if(personas && personas.length){
+      personasData = personas;
+      poblarPersonasSelect(personas);
+      actualizarHorasSegunPersona();
+    }
+  }).catch(function(){ /* si falla, se mantienen las personas del HTML como respaldo */ });
 
   var dateInput = document.getElementById('date');
   if(dateInput){
@@ -974,10 +1043,13 @@
           .filter(function(c){ return c.hora === time; })
           .map(function(c){ return c.persona; });
 
-        function estadoPersona(persona){
-          if(ocupadasEnEsaHora.indexOf(persona) !== -1) return 'ocupado';
-          if((LUNCH_BREAKS[persona] || []).indexOf(time) !== -1) return 'almuerzo';
-          var bloqueosPersona = indisponibilidadesDelDia.filter(function(b){ return b.persona === persona; });
+        function estadoPersona(nombrePersona){
+          var p = personaPorNombre(nombrePersona);
+          if(!p) return 'invalida';
+          if(!p.activa) return 'inactiva';
+          if(ocupadasEnEsaHora.indexOf(nombrePersona) !== -1) return 'ocupado';
+          if(horaEnAlmuerzo(time, p.almuerzo_inicio, p.almuerzo_fin)) return 'almuerzo';
+          var bloqueosPersona = indisponibilidadesDelDia.filter(function(b){ return b.persona === nombrePersona; });
           if(bloqueosPersona.some(function(b){ return b.hora === ''; })) return 'dia';
           if(bloqueosPersona.some(function(b){ return b.hora === time; })) return 'hora';
           return 'libre';
@@ -985,13 +1057,18 @@
 
         var personaAsignada;
         if(barbero === 'Cualquiera disponible'){
-          personaAsignada = PERSONAS.filter(function(p){ return estadoPersona(p) === 'libre'; })[0];
+          personaAsignada = personasData.map(function(p){ return p.nombre; }).filter(function(p){ return estadoPersona(p) === 'libre'; })[0];
           if(!personaAsignada){
             cancelarReserva('Ese horario no tiene personal disponible (ocupado, en almuerzo o no disponible). Elige otra hora u otro día.');
             return;
           }
         } else {
           var estado = estadoPersona(barbero);
+          if(estado === 'inactiva'){
+            var pInactiva = personaPorNombre(barbero);
+            cancelarReserva(barbero + ' no está recibiendo citas por el momento' + (pInactiva && pInactiva.motivo_inactiva ? ': ' + pInactiva.motivo_inactiva : '') + '. Elige otra persona.');
+            return;
+          }
           if(estado === 'ocupado'){
             cancelarReserva(barbero + ' ya está ocupado(a) en ese horario. Elige otra persona, hora o día.');
             return;

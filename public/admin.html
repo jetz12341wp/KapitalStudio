@@ -55,14 +55,54 @@
       </div>
 
       <div class="card mt-4">
+        <h2 class="font-bold">Personas que atienden</h2>
+        <p class="text-sm mt-1" style="color:var(--brand-gray)">Agrega o quita personal, y configura el horario de almuerzo de cada quien — se bloquea automáticamente en el formulario de citas del sitio. También puedes marcar a alguien como que ya no recibe citas (con un motivo, que se muestra a los clientes) sin necesidad de eliminarla.</p>
+        <div id="personas-list" class="mt-3 text-sm">Cargando…</div>
+
+        <h3 class="font-bold mt-5 text-sm">Agregar nueva persona</h3>
+        <input id="persona-nombre" type="text" placeholder="Nombre completo" class="mt-2">
+        <div class="grid sm:grid-cols-2 gap-3 mt-3">
+          <select id="persona-almuerzo-inicio">
+            <option value="">Almuerzo desde (opcional)</option>
+            <option value="10:00 am">10:00 am</option>
+            <option value="11:00 am">11:00 am</option>
+            <option value="12:00 pm">12:00 pm</option>
+            <option value="1:00 pm">1:00 pm</option>
+            <option value="2:00 pm">2:00 pm</option>
+            <option value="3:00 pm">3:00 pm</option>
+            <option value="4:00 pm">4:00 pm</option>
+            <option value="5:00 pm">5:00 pm</option>
+            <option value="6:00 pm">6:00 pm</option>
+            <option value="7:00 pm">7:00 pm</option>
+            <option value="8:00 pm">8:00 pm</option>
+            <option value="9:00 pm">9:00 pm</option>
+          </select>
+          <select id="persona-almuerzo-fin">
+            <option value="">Almuerzo hasta (opcional)</option>
+            <option value="10:00 am">10:00 am</option>
+            <option value="11:00 am">11:00 am</option>
+            <option value="12:00 pm">12:00 pm</option>
+            <option value="1:00 pm">1:00 pm</option>
+            <option value="2:00 pm">2:00 pm</option>
+            <option value="3:00 pm">3:00 pm</option>
+            <option value="4:00 pm">4:00 pm</option>
+            <option value="5:00 pm">5:00 pm</option>
+            <option value="6:00 pm">6:00 pm</option>
+            <option value="7:00 pm">7:00 pm</option>
+            <option value="8:00 pm">8:00 pm</option>
+            <option value="9:00 pm">9:00 pm</option>
+          </select>
+        </div>
+        <button id="persona-add-btn" class="btn-primary mt-3">Agregar persona</button>
+        <p id="persona-add-msg" class="text-sm mt-2"></p>
+      </div>
+
+      <div class="card mt-4">
         <h2 class="font-bold">Indisponibilidad de personal</h2>
         <p class="text-sm mt-1" style="color:var(--brand-gray)">Marca a alguien como no disponible todo un día, o solo en una hora puntual (por ejemplo, una cita médica). Eso se oculta automáticamente del formulario de citas del sitio.</p>
         <div class="grid sm:grid-cols-2 gap-3 mt-3">
           <select id="indisp-persona">
             <option value="">Elige a la persona</option>
-            <option value="Alejandro Galindo">Alejandro Galindo</option>
-            <option value="Niczon (Sensei)">Niczon (Sensei)</option>
-            <option value="Lian Rojas">Lian Rojas</option>
           </select>
           <input id="indisp-fecha" type="date">
         </div>
@@ -164,12 +204,187 @@
         gate.classList.add('hidden');
         panel.classList.remove('hidden');
         loadList();
+        loadPersonas();
       })
       .catch(function(){
         localStorage.removeItem(TOKEN_KEY);
         gateError.classList.remove('hidden');
       });
   }
+
+  var PERSONAS_HORAS = ['10:00 am', '11:00 am', '12:00 pm', '1:00 pm', '2:00 pm', '3:00 pm', '4:00 pm', '5:00 pm', '6:00 pm', '7:00 pm', '8:00 pm', '9:00 pm'];
+  var personasListEl = document.getElementById('personas-list');
+  var personaNombreInput = document.getElementById('persona-nombre');
+  var personaInicioSelectAdd = document.getElementById('persona-almuerzo-inicio');
+  var personaFinSelectAdd = document.getElementById('persona-almuerzo-fin');
+  var personaAddBtn = document.getElementById('persona-add-btn');
+  var personaAddMsg = document.getElementById('persona-add-msg');
+
+  function crearSelectHora(valorActual){
+    var sel = document.createElement('select');
+    var optVacio = document.createElement('option');
+    optVacio.value = '';
+    optVacio.textContent = '—';
+    sel.appendChild(optVacio);
+    PERSONAS_HORAS.forEach(function(h){
+      var opt = document.createElement('option');
+      opt.value = h;
+      opt.textContent = h;
+      if(h === valorActual) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    return sel;
+  }
+
+  function renderPersonas(personas){
+    personasListEl.innerHTML = '';
+    if(!personas.length){
+      personasListEl.textContent = 'No hay personas registradas.';
+      return;
+    }
+    personas.forEach(function(p){
+      var wrap = document.createElement('div');
+      wrap.className = 'day-row';
+      wrap.style.flexDirection = 'column';
+      wrap.style.alignItems = 'stretch';
+      wrap.style.gap = '.4rem';
+
+      var top = document.createElement('div');
+      top.style.display = 'flex';
+      top.style.justifyContent = 'space-between';
+      top.style.alignItems = 'center';
+      var nombreEl = document.createElement('strong');
+      nombreEl.textContent = p.nombre;
+      var estadoEl = document.createElement('span');
+      estadoEl.className = 'text-xs font-bold';
+      estadoEl.style.color = p.activa ? '#1a7f37' : 'var(--brand-accent)';
+      estadoEl.textContent = p.activa ? 'Disponible' : ('No disponible' + (p.motivo_inactiva ? ': ' + p.motivo_inactiva : ''));
+      top.appendChild(nombreEl);
+      top.appendChild(estadoEl);
+
+      var horarioRow = document.createElement('div');
+      horarioRow.className = 'grid sm:grid-cols-2 gap-2';
+      var inicioSel = crearSelectHora(p.almuerzo_inicio);
+      var finSel = crearSelectHora(p.almuerzo_fin);
+      horarioRow.appendChild(inicioSel);
+      horarioRow.appendChild(finSel);
+
+      var botones = document.createElement('div');
+      botones.className = 'flex flex-wrap gap-3';
+
+      var guardarBtn = document.createElement('button');
+      guardarBtn.type = 'button';
+      guardarBtn.textContent = 'Guardar horario de almuerzo';
+      guardarBtn.className = 'text-xs font-bold';
+      guardarBtn.style.color = 'var(--brand-accent-2)';
+      guardarBtn.addEventListener('click', function(){
+        fetch('/api/admin/personas', {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json', 'x-admin-token': getToken() },
+          body: JSON.stringify({ nombre: p.nombre, almuerzo_inicio: inicioSel.value, almuerzo_fin: finSel.value })
+        }).then(function(r){
+          if(!r.ok) throw new Error();
+          loadPersonas();
+        }).catch(function(){ alert('No se pudo guardar el horario. Verifica tu clave.'); });
+      });
+
+      var toggleBtn = document.createElement('button');
+      toggleBtn.type = 'button';
+      toggleBtn.textContent = p.activa ? 'Marcar no disponible' : 'Reactivar';
+      toggleBtn.className = 'text-xs font-bold';
+      toggleBtn.style.color = 'var(--brand-accent)';
+      toggleBtn.addEventListener('click', function(){
+        var body = { nombre: p.nombre };
+        if(p.activa){
+          var motivo = window.prompt('¿Por qué ' + p.nombre + ' ya no va a recibir citas? (esto se le muestra a los clientes en el formulario)') || '';
+          body.activa = false;
+          body.motivo_inactiva = motivo.trim();
+        } else {
+          body.activa = true;
+          body.motivo_inactiva = '';
+        }
+        fetch('/api/admin/personas', {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json', 'x-admin-token': getToken() },
+          body: JSON.stringify(body)
+        }).then(function(r){
+          if(!r.ok) throw new Error();
+          loadPersonas();
+        }).catch(function(){ alert('No se pudo actualizar. Verifica tu clave.'); });
+      });
+
+      var eliminarBtn = document.createElement('button');
+      eliminarBtn.type = 'button';
+      eliminarBtn.textContent = 'Eliminar';
+      eliminarBtn.className = 'text-xs font-bold';
+      eliminarBtn.style.color = 'var(--brand-accent)';
+      eliminarBtn.addEventListener('click', function(){
+        if(!window.confirm('¿Eliminar a ' + p.nombre + ' de la lista de personas que atienden?')) return;
+        fetch('/api/admin/personas', {
+          method: 'DELETE',
+          headers: { 'content-type': 'application/json', 'x-admin-token': getToken() },
+          body: JSON.stringify({ nombre: p.nombre })
+        }).then(function(r){
+          if(!r.ok) throw new Error();
+          loadPersonas();
+        }).catch(function(){ alert('No se pudo eliminar. Verifica tu clave.'); });
+      });
+
+      botones.appendChild(guardarBtn);
+      botones.appendChild(toggleBtn);
+      botones.appendChild(eliminarBtn);
+
+      wrap.appendChild(top);
+      wrap.appendChild(horarioRow);
+      wrap.appendChild(botones);
+      personasListEl.appendChild(wrap);
+    });
+  }
+
+  function poblarIndispPersonaSelect(personas){
+    var valorActual = indispPersona.value;
+    indispPersona.innerHTML = '';
+    var optVacio = document.createElement('option');
+    optVacio.value = '';
+    optVacio.textContent = 'Elige a la persona';
+    indispPersona.appendChild(optVacio);
+    personas.forEach(function(p){
+      var opt = document.createElement('option');
+      opt.value = p.nombre;
+      opt.textContent = p.nombre;
+      indispPersona.appendChild(opt);
+    });
+    if(personas.some(function(p){ return p.nombre === valorActual; })) indispPersona.value = valorActual;
+  }
+
+  function loadPersonas(){
+    personasListEl.textContent = 'Cargando…';
+    fetch('/api/personas').then(function(r){ return r.json(); }).then(function(personas){
+      renderPersonas(personas);
+      poblarIndispPersonaSelect(personas);
+    });
+  }
+
+  personaAddBtn.addEventListener('click', function(){
+    var nombre = personaNombreInput.value.trim();
+    if(!nombre){ personaAddMsg.textContent = 'Escribe el nombre.'; return; }
+    personaAddBtn.disabled = true;
+    fetch('/api/admin/personas', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-admin-token': getToken() },
+      body: JSON.stringify({ nombre: nombre, almuerzo_inicio: personaInicioSelectAdd.value, almuerzo_fin: personaFinSelectAdd.value })
+    }).then(function(r){
+      personaAddBtn.disabled = false;
+      if(!r.ok){
+        return r.json().then(function(d){ personaAddMsg.textContent = (d && d.error) ? d.error : 'No se pudo agregar. Verifica tu clave.'; });
+      }
+      personaAddMsg.textContent = 'Persona agregada.';
+      personaNombreInput.value = '';
+      personaInicioSelectAdd.value = '';
+      personaFinSelectAdd.value = '';
+      loadPersonas();
+    });
+  });
 
   addBtn.addEventListener('click', function(){
     var fecha = newFecha.value;
