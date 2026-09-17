@@ -58,16 +58,33 @@ Esto **no reemplaza** el flujo de reservas por WhatsApp: las citas se siguen coo
 
 ## Personas y disponibilidad por horario
 
-El formulario tiene un campo **"¿Con quién deseas que te atienda?"** con 3 opciones (`Persona 1`, `Persona 2`, `Persona 3`) más `Cualquiera disponible`. Las 3 personas pueden atender en simultáneo — una misma fecha y hora admite hasta 3 citas, una por persona — y una hora recién se considera completa cuando las 3 ya están ocupadas ahí.
+El formulario tiene un campo **"¿Con quién deseas que te atienda?"** con 3 opciones (`Alejandro Galindo`, `Niczon (Sensei)`, `Lian Rojas`) más `Cualquiera disponible`. Las 3 personas pueden atender en simultáneo — una misma fecha y hora admite hasta 3 citas, una por persona — y una hora recién se considera completa cuando las 3 ya están ocupadas, en almuerzo o marcadas como no disponibles ahí.
+
+Cada persona tiene un horario de almuerzo fijo en el que no se le puede agendar (bloqueado automáticamente, tanto en el formulario como en el servidor):
+
+- **Alejandro Galindo**: 2:00 pm – 4:00 pm (bloquea los horarios de 2:00 pm y 3:00 pm)
+- **Niczon (Sensei)**: 12:00 pm – 2:00 pm (bloquea los horarios de 12:00 pm y 1:00 pm)
+- **Lian Rojas**: 1:00 pm – 3:00 pm (bloquea los horarios de 1:00 pm y 2:00 pm)
 
 Esto se verifica justo al hacer clic en **"Enviar por WhatsApp"**:
 
 1. Si falta completar algún campo obligatorio (todos menos "Notas"), aparece un recuadro de alerta listando qué falta y no se envía nada.
-2. Si se eligió una persona específica y esa persona ya tiene una cita en esa fecha y hora, aparece un aviso pidiendo elegir otra persona, hora o día.
-3. Si se eligió "Cualquiera disponible", el sitio asigna automáticamente a la primera persona libre en ese horario; si las 3 ya están ocupadas, avisa que el horario está completo.
+2. Si se eligió una persona específica y esa persona ya tiene una cita en esa fecha y hora, está en su horario de almuerzo, o fue marcada como no disponible desde `/admin` (ver "Indisponibilidad de personal" abajo), aparece un aviso específico pidiendo elegir otra persona, hora o día.
+3. Si se eligió "Cualquiera disponible", el sitio asigna automáticamente a la primera persona libre en ese horario (descartando ocupadas, en almuerzo o no disponibles); si ninguna está libre, avisa que el horario está completo.
 4. Si todo está disponible, la cita se guarda (tabla `citas` en D1) y recién ahí se abre WhatsApp con el mensaje, incluyendo con qué persona quedó la cita. Después de enviar, el formulario se limpia solo para la siguiente persona.
 
-Para cambiar los nombres genéricos "Persona 1/2/3" por los nombres reales del equipo, edita las opciones del `<select id="barbero">` en `public/index.html` (dile a Claude los nombres y se actualiza solo).
+El servidor (`src/index.js`) vuelve a validar el horario de almuerzo y la indisponibilidad al guardar la cita, así que aunque alguien llame a la API directamente sin pasar por el formulario, no puede saltarse estas reglas.
+
+Para cambiar los nombres del equipo, edita las opciones del `<select id="barbero">` y el array `PERSONAS` en `public/index.html`, y el array `PERSONAS` en `src/index.js` (dile a Claude los nombres y se actualiza solo).
+
+### Indisponibilidad de personal (vacaciones, citas médicas, etc.)
+
+Además del horario de almuerzo fijo, en **`/admin`** (misma clave que para los días bloqueados), sección **"Indisponibilidad de personal"**, se puede marcar a cualquiera de las 3 personas como no disponible:
+
+- **Todo un día** (por ejemplo, vacaciones o descanso médico): marca la casilla "Todo el día".
+- **Solo una hora puntual** dentro de su horario (por ejemplo, una cita médica a las 4:00 pm): elige la hora en vez de marcar "Todo el día".
+
+Esa persona deja de aparecer como disponible en el formulario de reservas para esa fecha/hora automáticamente (tabla `indisponibilidad_personas` en D1). Para liberar el bloqueo antes de tiempo, busca la fecha en la lista de abajo del mismo panel y presiona "Liberar".
 
 ### Ver, cancelar o corregir una cita
 
@@ -112,7 +129,7 @@ Cada `<div class="service-visual">` tiene un `<img>` con `object-fit:contain` (n
 
 ## Pendiente antes de publicar
 
-- **Correr `npm run db:migrate:remote`** (o pegar el SQL de `migrations/0002_citas.sql` en la Console de Cloudflare) para crear la tabla `citas` en la base real — es nueva desde que se agregó "Personas y disponibilidad por horario". Sin este paso, el formulario no podrá guardar ni consultar citas.
+- **Correr `npm run db:migrate:remote`** (o pegar el SQL de `migrations/0002_citas.sql` y `migrations/0003_indisponibilidad.sql` en la Console de Cloudflare) para crear las tablas `citas` e `indisponibilidad_personas` en la base real. Sin este paso, el formulario no podrá guardar ni consultar citas, y el panel de indisponibilidad no funcionará.
 - Dominio propio (hoy el `<link rel="canonical">` y el correo de `libro-de-reclamaciones.html` usan `TU-DOMINIO-AQUI.pe` como placeholder).
 - RUC / razón social en el footer.
 - Fotos reales del local y el equipo (las de servicios ya están, ver sección "Fotos de servicios" arriba).
@@ -127,6 +144,13 @@ Instagram, TikTok y Facebook están enlazados en tres lugares de `public/index.h
 - Facebook: `https://www.facebook.com/KapitalStudio.pe`
 
 Para cambiar el usuario o agregar otra red, busca esas mismas URLs en el archivo y reemplázalas en los tres lugares.
+
+## Vista en celular (sin tocar el diseño de escritorio)
+
+Dos ajustes que solo aplican en pantallas angostas (`max-width:639px` en el `<style>` de `index.html`), sin modificar nada en la vista de escritorio/tablet:
+
+- **Redes sociales compactas**: la sección "Síguenos" (`#redes-grid`) reduce el tamaño de las tarjetas de Instagram/TikTok/Facebook para que se vean parecidas en tamaño a las de "Formas de pago" (íconos más chicos, sin el nombre de usuario ni el texto "Seguir →"), sin dejar de ser visibles.
+- **Servicios y Productos en carrusel**: `#servicios-grid` y `#productos-grid` pasan de cuadrícula a un carrusel horizontal deslizable (scroll con "snap"), mostrando una tarjeta grande a la vez. En escritorio ambas siguen siendo la cuadrícula normal.
 
 ## Formas de pago
 

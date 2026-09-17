@@ -1,5 +1,10 @@
 const FECHA_RE = /^\d{4}-\d{2}-\d{2}$/;
-const PERSONAS = ['Persona 1', 'Persona 2', 'Persona 3'];
+const PERSONAS = ['Alejandro Galindo', 'Niczon (Sensei)', 'Lian Rojas'];
+const LUNCH_BREAKS = {
+  'Alejandro Galindo': ['2:00 pm', '3:00 pm'],
+  'Niczon (Sensei)': ['12:00 pm', '1:00 pm'],
+  'Lian Rojas': ['1:00 pm', '2:00 pm'],
+};
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -72,6 +77,17 @@ export default {
       if (!PERSONAS.includes(persona)) return jsonResponse({ error: 'Persona inválida' }, 400);
       if (!nombre || !telefono || !servicio) return jsonResponse({ error: 'Faltan datos del cliente' }, 400);
 
+      if ((LUNCH_BREAKS[persona] || []).includes(hora)) {
+        return jsonResponse({ error: `${persona} está en su horario de almuerzo a esa hora` }, 409);
+      }
+
+      const { results: bloqueos } = await env.DB.prepare(
+        "SELECT hora FROM indisponibilidad_personas WHERE persona = ? AND fecha = ? AND (hora = '' OR hora = ?)"
+      ).bind(persona, fecha, hora).all();
+      if (bloqueos.length) {
+        return jsonResponse({ error: `${persona} no está disponible en esa fecha/hora` }, 409);
+      }
+
       try {
         await env.DB.prepare(
           'INSERT INTO citas (fecha, hora, persona, nombre, telefono, servicio) VALUES (?, ?, ?, ?, ?, ?)'
@@ -82,6 +98,50 @@ export default {
         }
         throw err;
       }
+      return jsonResponse({ ok: true });
+    }
+
+    if (url.pathname === '/api/indisponibilidad' && request.method === 'GET') {
+      const fecha = url.searchParams.get('fecha');
+      if (!FECHA_RE.test(fecha)) return jsonResponse({ error: 'Fecha inválida (usa AAAA-MM-DD)' }, 400);
+      const { results } = await env.DB.prepare(
+        'SELECT persona, hora, motivo FROM indisponibilidad_personas WHERE fecha = ?'
+      ).bind(fecha).all();
+      return jsonResponse(results);
+    }
+
+    if (url.pathname === '/api/admin/indisponibilidad' && request.method === 'POST') {
+      if (!isAuthorized(request, env)) return jsonResponse({ error: 'No autorizado' }, 401);
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return jsonResponse({ error: 'JSON inválido' }, 400);
+      }
+      const { persona, fecha, motivo } = body || {};
+      const hora = body && body.hora ? body.hora : '';
+      if (!PERSONAS.includes(persona)) return jsonResponse({ error: 'Persona inválida' }, 400);
+      if (!FECHA_RE.test(fecha)) return jsonResponse({ error: 'Fecha inválida (usa AAAA-MM-DD)' }, 400);
+      await env.DB.prepare(
+        'INSERT OR REPLACE INTO indisponibilidad_personas (persona, fecha, hora, motivo) VALUES (?, ?, ?, ?)'
+      ).bind(persona, fecha, hora, motivo || null).run();
+      return jsonResponse({ ok: true });
+    }
+
+    if (url.pathname === '/api/admin/indisponibilidad' && request.method === 'DELETE') {
+      if (!isAuthorized(request, env)) return jsonResponse({ error: 'No autorizado' }, 401);
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return jsonResponse({ error: 'JSON inválido' }, 400);
+      }
+      const { persona, fecha } = body || {};
+      const hora = body && body.hora ? body.hora : '';
+      if (!PERSONAS.includes(persona) || !FECHA_RE.test(fecha)) return jsonResponse({ error: 'Faltan datos' }, 400);
+      await env.DB.prepare(
+        'DELETE FROM indisponibilidad_personas WHERE persona = ? AND fecha = ? AND hora = ?'
+      ).bind(persona, fecha, hora).run();
       return jsonResponse({ ok: true });
     }
 

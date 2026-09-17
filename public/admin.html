@@ -53,6 +53,46 @@
         <input id="citas-fecha" type="date" class="mt-3">
         <div id="citas-list" class="mt-3 text-sm">Elige una fecha arriba.</div>
       </div>
+
+      <div class="card mt-4">
+        <h2 class="font-bold">Indisponibilidad de personal</h2>
+        <p class="text-sm mt-1" style="color:var(--brand-gray)">Marca a alguien como no disponible todo un día, o solo en una hora puntual (por ejemplo, una cita médica). Eso se oculta automáticamente del formulario de citas del sitio.</p>
+        <div class="grid sm:grid-cols-2 gap-3 mt-3">
+          <select id="indisp-persona">
+            <option value="">Elige a la persona</option>
+            <option value="Alejandro Galindo">Alejandro Galindo</option>
+            <option value="Niczon (Sensei)">Niczon (Sensei)</option>
+            <option value="Lian Rojas">Lian Rojas</option>
+          </select>
+          <input id="indisp-fecha" type="date">
+        </div>
+        <div class="mt-3 flex items-center gap-2">
+          <input id="indisp-dia-completo" type="checkbox" style="width:auto">
+          <label for="indisp-dia-completo" class="text-sm font-semibold">Todo el día</label>
+        </div>
+        <select id="indisp-hora" class="mt-3">
+          <option value="">Elige una hora</option>
+          <option value="10:00 am">10:00 am</option>
+          <option value="11:00 am">11:00 am</option>
+          <option value="12:00 pm">12:00 pm</option>
+          <option value="1:00 pm">1:00 pm</option>
+          <option value="2:00 pm">2:00 pm</option>
+          <option value="3:00 pm">3:00 pm</option>
+          <option value="4:00 pm">4:00 pm</option>
+          <option value="5:00 pm">5:00 pm</option>
+          <option value="6:00 pm">6:00 pm</option>
+          <option value="7:00 pm">7:00 pm</option>
+          <option value="8:00 pm">8:00 pm</option>
+          <option value="9:00 pm">9:00 pm</option>
+        </select>
+        <input id="indisp-motivo" type="text" placeholder="Motivo (opcional)" class="mt-3">
+        <button id="indisp-add-btn" class="btn-primary mt-3">Bloquear</button>
+        <p id="indisp-add-msg" class="text-sm mt-2"></p>
+
+        <h3 class="font-bold mt-5 text-sm">Ver indisponibilidad por fecha</h3>
+        <input id="indisp-fecha-ver" type="date" class="mt-2">
+        <div id="indisp-list" class="mt-3 text-sm">Elige una fecha arriba.</div>
+      </div>
     </div>
   </div>
 
@@ -190,6 +230,86 @@
   }
 
   citasFecha.addEventListener('change', loadCitas);
+
+  var indispPersona = document.getElementById('indisp-persona');
+  var indispFecha = document.getElementById('indisp-fecha');
+  var indispDiaCompleto = document.getElementById('indisp-dia-completo');
+  var indispHora = document.getElementById('indisp-hora');
+  var indispMotivo = document.getElementById('indisp-motivo');
+  var indispAddBtn = document.getElementById('indisp-add-btn');
+  var indispAddMsg = document.getElementById('indisp-add-msg');
+  var indispFechaVer = document.getElementById('indisp-fecha-ver');
+  var indispList = document.getElementById('indisp-list');
+
+  indispDiaCompleto.addEventListener('change', function(){
+    indispHora.disabled = indispDiaCompleto.checked;
+    if(indispDiaCompleto.checked) indispHora.value = '';
+  });
+
+  indispAddBtn.addEventListener('click', function(){
+    var persona = indispPersona.value;
+    var fecha = indispFecha.value;
+    var diaCompleto = indispDiaCompleto.checked;
+    var hora = diaCompleto ? '' : indispHora.value;
+    if(!persona || !fecha){ indispAddMsg.textContent = 'Elige la persona y la fecha.'; return; }
+    if(!diaCompleto && !hora){ indispAddMsg.textContent = 'Elige una hora o marca "Todo el día".'; return; }
+    indispAddBtn.disabled = true;
+    fetch('/api/admin/indisponibilidad', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-admin-token': getToken() },
+      body: JSON.stringify({ persona: persona, fecha: fecha, hora: hora, motivo: indispMotivo.value.trim() })
+    }).then(function(r){
+      indispAddBtn.disabled = false;
+      if(!r.ok){ indispAddMsg.textContent = 'No se pudo bloquear. Verifica tu clave.'; return; }
+      indispAddMsg.textContent = 'Bloqueado correctamente.';
+      indispMotivo.value = '';
+      if(indispFechaVer.value === fecha) loadIndisponibilidad();
+    });
+  });
+
+  function renderIndisponibilidad(fecha, bloqueos){
+    if(!bloqueos.length){
+      indispList.textContent = 'No hay indisponibilidad registrada ese día.';
+      return;
+    }
+    indispList.innerHTML = '';
+    bloqueos.forEach(function(b){
+      var row = document.createElement('div');
+      row.className = 'day-row';
+      var label = document.createElement('span');
+      label.textContent = b.persona + ' — ' + (b.hora ? b.hora : 'Todo el día') + (b.motivo ? ' — ' + b.motivo : '');
+      var del = document.createElement('button');
+      del.textContent = 'Liberar';
+      del.className = 'text-sm font-bold';
+      del.style.color = 'var(--brand-accent)';
+      del.addEventListener('click', function(){ liberarIndisponibilidad(fecha, b.persona, b.hora); });
+      row.appendChild(label);
+      row.appendChild(del);
+      indispList.appendChild(row);
+    });
+  }
+
+  function loadIndisponibilidad(){
+    var fecha = indispFechaVer.value;
+    if(!fecha){ indispList.textContent = 'Elige una fecha arriba.'; return; }
+    indispList.textContent = 'Cargando…';
+    fetch('/api/indisponibilidad?fecha=' + encodeURIComponent(fecha))
+      .then(function(r){ return r.json(); })
+      .then(function(bloqueos){ renderIndisponibilidad(fecha, bloqueos); });
+  }
+
+  function liberarIndisponibilidad(fecha, persona, hora){
+    fetch('/api/admin/indisponibilidad', {
+      method: 'DELETE',
+      headers: { 'content-type': 'application/json', 'x-admin-token': getToken() },
+      body: JSON.stringify({ persona: persona, fecha: fecha, hora: hora })
+    }).then(function(r){
+      if(!r.ok) throw new Error();
+      loadIndisponibilidad();
+    }).catch(function(){ alert('No se pudo liberar. Verifica tu clave.'); });
+  }
+
+  indispFechaVer.addEventListener('change', loadIndisponibilidad);
 
   gateBtn.addEventListener('click', tryEnter);
   tokenInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') tryEnter(); });
