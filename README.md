@@ -137,7 +137,6 @@ Cada `<div class="service-visual">` tiene un `<img>` con `object-fit:contain` (n
 
 ## Pendiente antes de publicar
 
-- **Correr `npm run db:migrate:remote`** (o pegar el SQL de `migrations/0002_citas.sql`, `migrations/0003_indisponibilidad.sql` y `migrations/0004_personas.sql` en la Console de Cloudflare) para crear las tablas `citas`, `indisponibilidad_personas` y `personas` en la base real. Sin este paso, el formulario no podrá guardar ni consultar citas, y los paneles de personas / indisponibilidad no funcionarán.
 - Dominio propio (hoy el `<link rel="canonical">` y el correo de `libro-de-reclamaciones.html` usan `TU-DOMINIO-AQUI.pe` como placeholder).
 - RUC / razón social en el footer.
 - Fotos reales del local y el equipo (las de servicios ya están, ver sección "Fotos de servicios" arriba).
